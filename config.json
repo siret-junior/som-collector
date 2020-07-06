@@ -41,10 +41,11 @@
   "kw_PCA_mat_file": "data/v3c1_w2vv/V3C1_20191228.w2vv.pca.matrix.bin",
   "kw_PCA_mat_dim": 128,
 
-  "kws_file": "data/ITEC_w2vv/word2idx.txt",
+  "kws_file": "data/v3c1_w2vv/word2idx.txt",
 
-  "display_page_size": 128,
-  "topn_frames_per_video": 12,
-  "topn_frames_per_shot": 6
+  "display_page_size": 64,
+  "topn_frames_per_video": 6,
+  "topn_frames_per_shot": 2,
 
+  "feedback_log_dir": "feedback_log/"
 }

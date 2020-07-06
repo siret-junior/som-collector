@@ -35,6 +35,7 @@ SomHunterNapi::Init(Napi::Env env, Napi::Object exports)
 	  env,
 	  "SomHunterNapi",
 	  { InstanceMethod("getDisplay", &SomHunterNapi::get_display),
+	  	InstanceMethod("getTarget", &SomHunterNapi::get_target_image),
 	    InstanceMethod("addLikes", &SomHunterNapi::add_likes),
 	    InstanceMethod("rescore", &SomHunterNapi::rescore),
 	    InstanceMethod("resetAll", &SomHunterNapi::reset_all),
@@ -246,6 +247,38 @@ SomHunterNapi::get_display(const Napi::CallbackInfo &info)
 	}
 
 	return Napi::Object(env, result);
+}
+
+
+Napi::Value
+SomHunterNapi::get_target_image(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+	Napi::HandleScope scope(env);
+
+	VideoFramePointer target;
+	try {
+		debug("API: CALL \n\t get_target_image" << std::endl);
+
+		target = somhunter->get_target_image();
+	} catch (const std::exception &e) {
+		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+	}
+	
+	napi_value result_dict;
+	napi_create_object(env, &result_dict);
+
+	{
+		napi_value key;
+		napi_create_string_utf8(
+			env, "targetPath", NAPI_AUTO_LENGTH, &key);
+		napi_value value;
+		napi_create_string_utf8(env, target->filename.c_str(), NAPI_AUTO_LENGTH, &value);
+
+		napi_set_property(env, result_dict, key, value);
+	}
+
+	return Napi::Object(env, result_dict);
 }
 
 Napi::Value

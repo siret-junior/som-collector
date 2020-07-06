@@ -158,6 +158,19 @@ exports.getAutocompleteResults = function (req, res) {
   res.status(200).jsonp(acKeywords);
 };
 
+exports.getTarget = function (req, res) {
+  const sess = req.session;
+
+  // -------------------------------
+  // Call the core
+  const target = global.core.getTarget();
+  
+  global.logger.log("info", target)
+
+  // Send response
+  res.status(200).jsonp(global.cfg.framesPathPrefix + target.targetPath);
+};
+
 exports.resetSearchSession = function (req, res) {
   const sess = req.session;
 

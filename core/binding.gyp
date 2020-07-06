@@ -14,6 +14,7 @@
                 "src/KeywordRanker.cpp",
                 "src/RelevanceScores.cpp",
                 "src/Submitter.cpp",
+                "src/LikesLogger.cpp",
             ],
             "include_dirs": [
                 "<!@(node -p \"require('node-addon-api').include\")",

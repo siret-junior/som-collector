@@ -36,6 +36,8 @@ private:
 
 	Napi::Value get_display(const Napi::CallbackInfo &info);
 
+	Napi::Value SomHunterNapi::get_target_image(const Napi::CallbackInfo &info);
+
 	Napi::Value add_likes(const Napi::CallbackInfo &info);
 
 	Napi::Value remove_likes(const Napi::CallbackInfo &info);

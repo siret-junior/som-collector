@@ -106,6 +106,66 @@ function showTopDisplay(type, id, thisFilename) {
     });
 }
 
+var forceSOMDone = true;
+
+function rescoreAndShowSom()
+{
+  rescore();
+  showGlobalMessage(
+    "Loading SOM",
+    "",
+    2500,
+  );
+  
+  const elem = document.getElementById("frameGrid");
+  elem.classList.remove("som-grid");
+  elem.innerHTML = "";
+  forceSOMDone = false;
+  setTimeout(forceShowSomDisplay, 2500);     
+}
+
+function forceShowSomDisplay()
+{
+  if(forceSOMDone)
+    return;
+  pageId = 0;
+  // Make the request
+  fetch("/get_som_screen", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((res) => {
+      if (!res.ok) { throw Error(res.statusText); }
+      return res.json()
+    })
+    .then((data) => {
+      // Handle error
+      if (data.error) { throw Error(data.error.message); }
+      
+      if(forceSOMDone)
+        return;
+
+      forceSOMDone = true;
+      console.log("Loaded SOM");
+      // Get updated view data
+      viewData = data.viewData;
+      putDocumentToState(viewData);
+
+    })
+    .catch((e) => {
+      console.log(e);
+      console.log(e.message);
+      setTimeout(forceShowSomDisplay, 1000);
+      showGlobalMessage(
+        "Loading SOM",
+        "",
+        900,
+      );
+    });
+}
+
 function showSomDisplay(id, thisFilename) {
   pageId = 0;
   // Make the request
@@ -236,7 +296,7 @@ function rescore() {
       }
 
       // Now request new display
-      showTopDisplay();
+      //showTopDisplay();
 
       //showGlobalMessage(`Rescored.`, "", 2000,"s");      
     })
@@ -382,6 +442,8 @@ function resetSearchSession() {
         5000
       );
     });
+
+    updateTargetImage();
 }
 
 function setupPanelButtons(viewData) {
@@ -410,12 +472,14 @@ function setupImageGrid(viewData) {
   elem.classList.remove("topn-grid");
   elem.classList.remove("som-grid");
 
+  /*
   if (viewData.somhunter.screen.type == "som")
   {
     elem.classList.add("som-grid");
   } else {
     elem.classList.add("topn-grid");
-  }
+  }*/
+  elem.classList.add("som-grid");
 
   let elemHtml = "";
   // Iterate over all the frames
@@ -472,24 +536,6 @@ function getNoThumbPrototype(src) {
       style="background-image: url('${src}')"
     >
       <div class="just-clicker">
-        <a 
-          class="button frame-in-grid-hover-btn submit-frame" 
-          title="Submit this frame.">
-          ✔
-        </a>
-
-        <a 
-          class="button frame-in-grid-hover-btn show-detail" 
-          data-open="modalDetail"
-          title="Show the detail of this frame.">
-          Detail
-        </a>
-
-        <a 
-          class="button frame-in-grid-hover-btn show-knn" 
-          title="Show most similiar frames.">
-          KNN
-        </a>
       </div>
     </li>`;
 }
@@ -503,27 +549,6 @@ function getThumbPrototype(likedStr, actionStr, id, src) {
       style="background-image: url('${src}')"
     >
       <div class="just-clicker">
-        <a 
-          class="button frame-in-grid-hover-btn submit-frame" 
-          onclick="submitImage(${id});event.cancelBubble=true;" 
-          title="Submit this frame.">
-          ✔
-        </a>
-
-        <a 
-          class="button frame-in-grid-hover-btn show-detail" 
-          data-open="modalDetail"
-          onclick="showVideoDetail(${id}, '${src}');" 
-          title="Show the detail of this frame.">
-          Detail
-        </a>
-
-        <a 
-          class="button frame-in-grid-hover-btn show-knn" 
-          onclick="showTopDisplay('topknn', ${id});event.cancelBubble=true;" 
-          title="Show most similiar frames.">
-          KNN
-        </a>
       </div>
     </li>`;
 }
@@ -539,6 +564,34 @@ function setupQueryInputs(viewData) {
   elIn1.value = q1
 }
 
+function updateTargetImage()
+{
+  fetch("/get_target", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => {
+          if (!res.ok) { throw Error(res.statusText); }
+          return res.json()
+        })
+        .then((data) => {
+
+          //document.getElementById("target_img").style.backgroundImage =  'url("' + data + '")';
+          document.getElementById("target_img").src = data;
+          
+        })
+        .catch((e) => {
+          console.log("Error: " + JSON.stringify(e.message));
+          showGlobalMessage(
+            "Request failed!",
+            JSON.stringify(e.message),
+            5000,
+            "e"
+          );
+        });
+}
 
 /**
  * This controls infinite scrolling.
@@ -570,7 +623,7 @@ function putDocumentToState(viewData) {
 
   // -----------------------------
   // Change buttons
-  setupPanelButtons(viewData);
+  //setupPanelButtons(viewData);
 
   // -----------------------------
   // Setup query inputs
@@ -589,6 +642,7 @@ function putDocumentToState(viewData) {
 /** Put document into correct state */
 onDocumentReady(function () {
   putDocumentToState(vd);
+  updateTargetImage();
 
 
   $(window).bind('mousewheel DOMMouseScroll', function(event){

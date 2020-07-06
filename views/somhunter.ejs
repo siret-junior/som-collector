@@ -68,7 +68,11 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         <%- include autocomplete_logic.ejs %>
 
         <div class="autocomplete-input-cont small-12 cell">
-          <a class="button block-btn rescore-btn" onclick="rescore()">Rescore</a>
+          <a class="button block-btn rescore-btn" onclick="rescoreAndShowSom()">Rescore to SOM</a>
+        </div>
+
+        <div class="autocomplete-input-cont small-12 cell">
+          <a class="button block-btn rescore-btn" onclick="rescore();showTopDisplay()">Rescore to top N</a>
         </div>
       </div>
     </form>
@@ -79,21 +83,16 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
   <!-- ---------------------------------- -->
   <section class="section-control-buttons ">
     <div class="grid-container"> 
+      
+      <!-- Target -->
+      <div class="screen-btns grid-x align-left"> 
 
-      <!-- Screen buttons -->
-      <div class="screen-btns grid-padding-x grid-x align-left"> 
-
-        <div class="small-12 cell">
-          <a id="btnSom" onclick="showSomDisplay()" class="button block-btn som-screen-btn">SOM Screen</a>
-        </div>
-        
-        <div class="small-6 cell">
-          <a id="btnTopn" onclick="showTopDisplay()" class="active button block-btn top-ranked-btn">Top-ranked</a>
-        </div>
-
-        <div class="small-6 cell">
-          <a id="btnDetail" class="button block-btn detail-btn">Detail</a>
-        </div>
+        TARGET IMG
+        <img 
+          class="" 
+          id="target_img"
+          style="height: 30vh;width: 30vw;"
+        > </img>
 
       </div>
 

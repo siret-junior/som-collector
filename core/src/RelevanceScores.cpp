@@ -317,6 +317,10 @@ ScoreModel::apply_bayes(std::set<ImageId> likes,
 			t.join();
 	}
 
+	// Throw away shown images
+	for (auto&& ii : screen)
+		scores[ii] = 0;
+
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
 	info("Bayes took " << elapsed.count());

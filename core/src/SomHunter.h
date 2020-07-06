@@ -25,6 +25,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <random>
 
 #include "AsyncSom.h"
 #include "DatasetFeatures.h"
@@ -32,6 +33,7 @@
 #include "KeywordRanker.h"
 #include "RelevanceScores.h"
 #include "Submitter.h"
+#include "LikesLogger.h"
 
 /* This is the main backend class. */
 
@@ -65,6 +67,14 @@ class SomHunter
 	Submitter submitter;
 	UsedTools used_tools;
 
+	// Relevance feedback logging
+	ImageId targetId;
+	VideoFrame targetFrame;
+	FeedbackLogger flogger;
+
+    std::mt19937 gen;
+	std::uniform_int_distribution<int> distrib;
+
 public:
 	SomHunter() = delete;
 	/** The main ctor with the filepath to the JSON config file */
@@ -76,8 +86,16 @@ public:
 	  , keywords(cfg)
 	  , asyncSom(cfg)
 	  , submitter(cfg.submitter_config)
+	  , flogger(cfg)
+	  , gen(40)
+	  , distrib(0, features.size())
+	  , targetId(0)
+	  , targetFrame(frames.get_frame(0))
 	{
+		targetId = distrib(gen);
+		targetFrame = frames.get_frame(0);
 		asyncSom.start_work(features, scores);
+		debug("New target id = " << targetId);
 	}
 
 	/** Returns display of desired type
@@ -110,6 +128,9 @@ public:
 
 	/** Resets current search context and starts new search */
 	void reset_search_session();
+
+	/** Returns pointer to target frame */
+	VideoFramePointer get_target_image();
 
 private:
 	/**

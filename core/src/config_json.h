@@ -89,6 +89,8 @@ struct Config
 	size_t topn_frames_per_video;
 	size_t topn_frames_per_shot;
 
+	std::string feedback_log_dir;
+
 	static Config parse_json_config(const std::string &filepath);
 };
 
@@ -184,6 +186,7 @@ Config::parse_json_config(const std::string &filepath)
 		size_t(json["display_page_size"].int_value()),
 		size_t(json["topn_frames_per_video"].int_value()),
 		size_t(json["topn_frames_per_shot"].int_value()),
+		json["feedback_log_dir"].string_value(),
 	};
 
 	return cfg;

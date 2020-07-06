@@ -25,6 +25,7 @@ SET(HEADERS
 	utils.h
 	log.h
 	json11.hpp
+	LikesLogger.h
 )
 
 SET(SOURCES
@@ -39,6 +40,7 @@ SET(SOURCES
 	Submitter.cpp
 	main.cpp
 	json11.cpp
+	LikesLogger.cpp
 )
 
 #create the program
