@@ -316,6 +316,7 @@ SomHunter::get_som_display()
 		for (size_t j = 0; j < SOM_DISPLAY_GRID_HEIGHT; ++j) {
 			if (asyncSom.map(i + SOM_DISPLAY_GRID_WIDTH * j)
 			      .empty()) {
+				debug("Fixing cluster " << i + SOM_DISPLAY_GRID_WIDTH * j);
 				size_t clust =
 				  asyncSom.nearest_cluster_with_atleast(
 				    asyncSom.get_koho(

@@ -86,7 +86,9 @@ public:
 
 	const float *get_koho(size_t i) const
 	{
-		return koho.data() + i * features_dim;
+		const float * p = koho.data() + i * features_dim;
+		std::atomic_thread_fence(std::memory_order_acquire);
+		return p;
 	}
 
 	size_t nearest_cluster_with_atleast(

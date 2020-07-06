@@ -135,13 +135,13 @@ AsyncSom::async_som_worker(AsyncSom *parent, const Config &cfg)
 		if (parent->new_data || parent->terminate)
 			continue;
 
+		parent->koho = koho;
 		parent->mapping.clear();
 		parent->mapping.resize(SOM_DISPLAY_GRID_WIDTH *
 		                       SOM_DISPLAY_GRID_HEIGHT);
 		for (ImageId im = 0; im < mapping.size(); ++im)
 			parent->mapping[mapping[im]].push_back(im);
 			
-		parent->koho = std::move(koho);
 
 		std::atomic_thread_fence(std::memory_order_release);
 		parent->m_ready = true;
