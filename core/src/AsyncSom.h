@@ -86,9 +86,7 @@ public:
 
 	const float *get_koho(size_t i) const
 	{
-		const float * p = koho.data() + i * features_dim;
-		std::atomic_thread_fence(std::memory_order_acquire);
-		return p;
+		return koho.data() + i * features_dim;
 	}
 
 	size_t nearest_cluster_with_atleast(
@@ -97,7 +95,7 @@ public:
 	{
 		float min = std::numeric_limits<float>::max();
 		size_t res = 0;
-		for (size_t i = 0; i < koho.size(); ++i) {
+		for (size_t i = 0; i < mapping.size(); ++i) {
 			if (mapping[i].size() > stolen_count[i]) {
 				float tmp =
 				  d_sqeucl(koho.data() + features_dim * i,

@@ -19,8 +19,8 @@
  * SOMHunter. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <stdexcept>
 #include <algorithm>
+#include <stdexcept>
 #include <unordered_map>
 
 #include "SomHunter.h"
@@ -308,7 +308,8 @@ SomHunter::get_som_display()
 	}
 
 	std::unordered_map<size_t, size_t> stolen_count;
-	for (size_t i = 0; i < SOM_DISPLAY_GRID_WIDTH * SOM_DISPLAY_GRID_HEIGHT; ++i) {
+	for (size_t i = 0; i < SOM_DISPLAY_GRID_WIDTH * SOM_DISPLAY_GRID_HEIGHT;
+	     ++i) {
 		stolen_count.emplace(i, 1);
 	}
 
@@ -316,25 +317,28 @@ SomHunter::get_som_display()
 		for (size_t j = 0; j < SOM_DISPLAY_GRID_HEIGHT; ++j) {
 			if (asyncSom.map(i + SOM_DISPLAY_GRID_WIDTH * j)
 			      .empty()) {
-				debug("Fixing cluster " << i + SOM_DISPLAY_GRID_WIDTH * j);
+				debug("Fixing cluster "
+				      << i + SOM_DISPLAY_GRID_WIDTH * j);
+				auto k = asyncSom.get_koho(
+				  i + SOM_DISPLAY_GRID_WIDTH * j);
+
 				size_t clust =
 				  asyncSom.nearest_cluster_with_atleast(
-				    asyncSom.get_koho(
-				      i + SOM_DISPLAY_GRID_WIDTH * j), stolen_count);
+				    k, stolen_count);
 
 				stolen_count[clust]++;
 				std::vector<ImageId> ci = asyncSom.map(clust);
 
 				for (ImageId ii : ids) {
-					auto fi = std::find(ci.begin(), ci.end(), ii);
+					auto fi =
+					  std::find(ci.begin(), ci.end(), ii);
 					if (fi != ci.end())
 						ci.erase(fi);
 				}
 
 				assert(!ci.empty());
 
-				ImageId id =
-				  scores.weighted_example(ci);
+				ImageId id = scores.weighted_example(ci);
 				ids[i + SOM_DISPLAY_GRID_WIDTH * j] = id;
 			}
 		}
