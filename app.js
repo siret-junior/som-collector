@@ -116,21 +116,25 @@ app.use(
 app.use(morgan("dev"));
 
 /*
+ * Turn on sessions
+ */
+app.use(session({ secret: "matfyz", resave: false, saveUninitialized: true }));
+
+/*
  * HTTP authentication
  */
 app.use((req, res, next) => {
   // Get auth credentials
-  const auth = {
-    login: global.cfg.authName,
-    password: global.cfg.authPassword,
-  };
+  const creds = global.cfg.creds
 
   // Parse login and password from headers
   const b64auth = (req.headers.authorization || "").split(" ")[1] || "";
   const [login, password] = new Buffer(b64auth, "base64").toString().split(":");
 
   // Verify login and password are set and correct
-  if (login && password && login === auth.login && password === auth.password) {
+  if (req.session.user || (login && password && creds[login] && password === creds[login])) {
+    if (!req.session.user)
+      req.session.user = login;
     // Access granted
     return next();
   }
@@ -139,11 +143,6 @@ app.use((req, res, next) => {
   res.set("WWW-Authenticate", "Basic realm='401'");
   res.status(401).send("Authentication required.");
 });
-
-/*
- * Turn on sessions
- */
-app.use(session({ secret: "matfyz", resave: false, saveUninitialized: true }));
 
 /*
  * Initial communication with the admin user

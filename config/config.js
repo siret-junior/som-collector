@@ -37,11 +37,10 @@ exports.initConfig = function() {
 
   // Merge to the final config
   const finalConfig = moduleLodaSh.merge(defaultConfig, environmentConfig);
-  const cred = require("./user.json");
-
+  const creds = require("./user.json");
+  
   // Login & auth credentials
-  finalConfig.authPassword = cred.authPassword;
-  finalConfig.authName = cred.authName;
+  finalConfig.creds = creds;
 
   // Store final config in globals
   global.cfg = finalConfig;
