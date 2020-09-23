@@ -97,13 +97,13 @@ std::vector<const Keyword *>
 SomHunter::autocomplete_keywords(const std::string &prefix, size_t count) const
 {
 	// Get the keywrods IDs
-	auto kw_IDs{ keywords.find(prefix, count) };
+	auto kw_IDs{ keywords->find(prefix, count) };
 
 	// Create vector of ptrs to corresponding keyword instances
 	std::vector<const Keyword *> res;
 	res.reserve(kw_IDs.size());
 	for (auto &&kw_ID : kw_IDs) {
-		res.emplace_back(&keywords[kw_ID.first]);
+		res.emplace_back(&((*keywords)[kw_ID.first]));
 	}
 
 	return res;
@@ -188,7 +188,7 @@ SomHunter::rescore_keywords(const std::string &query)
 
 	reset_scores();
 
-	keywords.rank_sentence_query(query, scores, features, frames, config);
+	keywords->rank_sentence_query(query, scores, *features, frames, config);
 
 	last_text_query = query;
 	used_tools.KWs_used = true;
@@ -202,14 +202,14 @@ SomHunter::rescore_feedback()
 	if (likes.empty())
 		return;
 
-	scores.apply_bayes(likes, shown_images, features);
+	scores.apply_bayes(likes, shown_images, *features);
 	used_tools.bayes_used = true;
 }
 
 void
 SomHunter::som_start()
 {
-	asyncSom.start_work(features, scores);
+	asyncSom.start_work(*features, scores);
 }
 
 VideoFramePointer
@@ -395,7 +395,7 @@ SomHunter::get_topKNN_display(ImageId selected_image, PageId page)
 	if (current_display_type != DisplayType::DTopKNN || page == 0) {
 		debug("Getting KNN for image " << selected_image);
 		// Get ids
-		auto ids = features.get_top_knn(frames,
+		auto ids = features->get_top_knn(frames,
 		                                selected_image,
 		                                config.topn_frames_per_video,
 		                                config.topn_frames_per_shot);

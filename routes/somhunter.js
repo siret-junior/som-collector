@@ -61,7 +61,7 @@ router.get("/", function (req, res, next) {
   let frames = [];
   // -------------------------------
   // Call the core
-  const displayFrames = global.core.getDisplay(global.cfg.framesPathPrefix, "topn", 0);
+  const displayFrames = global.core.getDisplay(req.session.user, global.cfg.framesPathPrefix, "topn", 0);
   frames = displayFrames.frames;
   // -------------------------------
 

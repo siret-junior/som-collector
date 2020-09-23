@@ -287,7 +287,7 @@ ScoreModel::apply_bayes(std::set<ImageId> likes,
 	auto start = std::chrono::high_resolution_clock::now();
 
 	{
-		size_t n_threads = std::thread::hardware_concurrency();
+		size_t n_threads = NUM_OF_THREADS; 
 		std::vector<std::thread> threads(n_threads);
 
 		auto worker = [&](size_t threadID) {

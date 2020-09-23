@@ -74,7 +74,8 @@ SomHunterNapi::SomHunterNapi(const Napi::CallbackInfo &info)
 	// Parse the config
 	Config cfg = Config::parse_json_config(config_fpth);
 	try {
-		somhunter = new SomHunter(cfg);
+		debug("API: Creating SomHuntersGuild");
+		somhunter = new SomHuntersGuild(cfg);
 		debug("API: SomHunter initialized.");
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
@@ -89,33 +90,34 @@ SomHunterNapi::get_display(const Napi::CallbackInfo &info)
 
 	// Process arguments
 	int length = info.Length();
-	if (length > 4) {
+	if (length > 5) {
 		Napi::TypeError::New(env,
 		                     "Wrong number of parameters "
 		                     "(SomHunterNapi::get_display)")
 		  .ThrowAsJavaScriptException();
 	}
 
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
 	DisplayType disp_type{ DisplayType::DTopN };
 	ImageId selected_image{ IMAGE_ID_ERR_VAL };
 	size_t page_num{ 0 };
 
-	std::string path_prefix{ info[0].As<Napi::String>().Utf8Value() };
+	std::string path_prefix{ info[1].As<Napi::String>().Utf8Value() };
 	// Get the display type
-	std::string display_string{ info[1].As<Napi::String>().Utf8Value() };
+	std::string display_string{ info[2].As<Napi::String>().Utf8Value() };
 	if (display_string == "topn") {
 		disp_type = DisplayType::DTopN;
-		page_num = info[2].As<Napi::Number>().Uint32Value();
+		page_num = info[3].As<Napi::Number>().Uint32Value();
 
 	} else if (display_string == "som") {
 		disp_type = DisplayType::DSom;
 
 	} else if (display_string == "detail") {
 		disp_type = DisplayType::DVideoDetail;
-		selected_image = info[3].As<Napi::Number>().Uint32Value();
+		selected_image = info[4].As<Napi::Number>().Uint32Value();
 	} else if (display_string == "topknn") {
 		disp_type = DisplayType::DTopKNN;
-		selected_image = info[3].As<Napi::Number>().Uint32Value();
+		selected_image = info[4].As<Napi::Number>().Uint32Value();
 	}
 
 	// Call native method
@@ -127,8 +129,12 @@ SomHunterNapi::get_display(const Napi::CallbackInfo &info)
 		      << std::endl
 		      << "n\t\t page_num = " << page_num);
 
+		auto hunter = somhunter->get(usr);
+		if (hunter == nullptr)
+			warn("Hunter not found for user " << usr << "!!!");
+			
 		display_frames =
-		  somhunter->get_display(disp_type, selected_image, page_num);
+		  hunter->get_display(disp_type, selected_image, page_num);
 
 		debug("API: RETURN \n\t get_display\n\t\tframes.size() = "
 		      << display_frames.size());
@@ -256,11 +262,21 @@ SomHunterNapi::get_target_image(const Napi::CallbackInfo &info)
 	Napi::Env env = info.Env();
 	Napi::HandleScope scope(env);
 
+	size_t length = info.Length();
+
+	if (length != 1) {
+		Napi::TypeError::New(env,
+		                     "Wrong number of parameters "
+		                     "(SomHunterNapi::get_display)")
+		  .ThrowAsJavaScriptException();
+	}
+
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
 	VideoFramePointer target;
 	try {
 		debug("API: CALL \n\t get_target_image" << std::endl);
 
-		target = somhunter->get_target_image();
+		target = somhunter->get(usr)->get_target_image();
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
@@ -290,14 +306,15 @@ SomHunterNapi::add_likes(const Napi::CallbackInfo &info)
 	// Process arguments
 	int length = info.Length();
 
-	if (length != 1) {
+	if (length != 2) {
 		Napi::TypeError::New(env, "Wrong number of parameters")
 		  .ThrowAsJavaScriptException();
 	}
 
 	std::vector<ImageId> fr_IDs;
 
-	Napi::Array arr = info[0].As<Napi::Array>();
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
+	Napi::Array arr = info[1].As<Napi::Array>();
 	for (size_t i{ 0 }; i < arr.Length(); ++i) {
 		Napi::Value val = arr[i];
 
@@ -309,7 +326,7 @@ SomHunterNapi::add_likes(const Napi::CallbackInfo &info)
 		debug("API: CALL \n\t add_likes\n\t\fr_IDs.size() = "
 		      << fr_IDs.size() << std::endl);
 
-		somhunter->add_likes(fr_IDs);
+		somhunter->get(usr)->add_likes(fr_IDs);
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
@@ -326,18 +343,19 @@ SomHunterNapi::rescore(const Napi::CallbackInfo &info)
 	// Process arguments
 	int length = info.Length();
 
-	if (length != 1) {
+	if (length != 2) {
 		Napi::TypeError::New(
 		  env, "Wrong number of parameters: SomHunterNapi::rescore")
 		  .ThrowAsJavaScriptException();
 	}
-	std::string query{ info[0].As<Napi::String>().Utf8Value() };
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
+	std::string query{ info[1].As<Napi::String>().Utf8Value() };
 
 	try {
 		debug("API: CALL \n\t rescore\n\t\t query =  " << query
 		                                               << std::endl);
 
-		somhunter->rescore(query);
+		somhunter->get(usr)->rescore(query);
 
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
@@ -354,16 +372,17 @@ SomHunterNapi::reset_all(const Napi::CallbackInfo &info)
 
 	// Process arguments
 	int length = info.Length();
-	if (length != 0) {
+	if (length != 1) {
 		Napi::TypeError::New(env,
 		                     "Wrong number of parameters "
 		                     "(SomHunterNapi::reset_all)")
 		  .ThrowAsJavaScriptException();
 	}
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
 	try {
 		debug("API: CALL \n\t reset_all()");
 
-		somhunter->reset_search_session();
+		somhunter->get(usr)->reset_search_session();
 
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
@@ -381,13 +400,14 @@ SomHunterNapi::remove_likes(const Napi::CallbackInfo &info)
 	// Process arguments
 	int length = info.Length();
 
-	if (length != 1) {
+	if (length != 2) {
 		Napi::TypeError::New(env, "Wrong number of parameters")
 		  .ThrowAsJavaScriptException();
 	}
 
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
 	std::vector<ImageId> fr_IDs;
-	Napi::Array arr = info[0].As<Napi::Array>();
+	Napi::Array arr = info[1].As<Napi::Array>();
 	for (size_t i{ 0 }; i < arr.Length(); ++i) {
 		Napi::Value val = arr[i];
 
@@ -399,7 +419,7 @@ SomHunterNapi::remove_likes(const Napi::CallbackInfo &info)
 		debug("API: CALL \n\t add_likes\n\t\fr_IDs.size() = "
 		      << fr_IDs.size() << std::endl);
 
-		somhunter->add_likes(fr_IDs);
+		somhunter->get(usr)->add_likes(fr_IDs);
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
@@ -416,19 +436,20 @@ SomHunterNapi::autocomplete_keywords(const Napi::CallbackInfo &info)
 	// Process arguments
 	int length = info.Length();
 
-	if (length != 3) {
+	if (length != 4) {
 		Napi::TypeError::New(env, "Wrong number of parameters")
 		  .ThrowAsJavaScriptException();
 	}
 
-	std::string path_prefix{ info[0].As<Napi::String>().Utf8Value() };
-	std::string prefix{ info[1].As<Napi::String>().Utf8Value() };
-	size_t count{ info[2].As<Napi::Number>().Uint32Value() };
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
+	std::string path_prefix{ info[1].As<Napi::String>().Utf8Value() };
+	std::string prefix{ info[2].As<Napi::String>().Utf8Value() };
+	size_t count{ info[3].As<Napi::Number>().Uint32Value() };
 
 	// Get suggested keywords
 	std::vector<const Keyword *> kws;
 	try {
-		kws = somhunter->autocomplete_keywords(prefix, count);
+		kws = somhunter->get(usr)->autocomplete_keywords(prefix, count);
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
@@ -521,18 +542,19 @@ SomHunterNapi::is_som_ready(const Napi::CallbackInfo &info)
 
 	// Process arguments
 	int length = info.Length();
-	if (length != 0) {
+	if (length != 1) {
 		Napi::TypeError::New(env,
 		                     "Wrong number of parameters "
 		                     "(SomHunterNapi::is_som_ready)")
 		  .ThrowAsJavaScriptException();
 	}
 
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
 	bool is_ready{ false };
 	try {
 		debug("API: CALL \n\t som_ready()");
 
-		is_ready = somhunter->som_ready();
+		is_ready = somhunter->get(usr)->som_ready();
 
 		debug(
 		  "API: RETURN \n\t som_ready()\n\t\tis_ready = " << is_ready);
@@ -556,18 +578,19 @@ SomHunterNapi::submit_to_server(const Napi::CallbackInfo &info)
 	// Process arguments
 	int length = info.Length();
 
-	if (length != 1) {
+	if (length != 2) {
 		Napi::TypeError::New(env, "Wrong number of parameters")
 		  .ThrowAsJavaScriptException();
 	}
 
-	ImageId frame_ID{ info[0].As<Napi::Number>().Uint32Value() };
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
+	ImageId frame_ID{ info[1].As<Napi::Number>().Uint32Value() };
 
 	try {
 		debug("API: CALL \n\t submit_to_server\n\t\frame_ID = "
 		      << frame_ID);
 
-		somhunter->submit_to_server(frame_ID);
+		somhunter->get(usr)->submit_to_server(frame_ID);
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}

@@ -33,7 +33,7 @@ exports.getFrameDetailData = function (req, res) {
   let frameData = {};
   // -------------------------------
   // Call the core
-  frameData = global.core.getDisplay(global.cfg.framesPathPrefix, "detail", null, frameId);
+  frameData = global.core.getDisplay(req.session.user, global.cfg.framesPathPrefix, "detail", null, frameId);
   // -------------------------------
 
   res.status(200).jsonp(frameData);
@@ -44,14 +44,14 @@ exports.getSomScreen = function (req, res) {
 
   let frameData = {};
 
-  if (!global.core.isSomReady()) {
+  if (!global.core.isSomReady(req.session.user)) {
     res.status(200).jsonp({ viewData: null, error: { message: "SOM not yet ready." } });
     return;
   }
 
   // -------------------------------
   // Call the core
-  frameData = global.core.getDisplay(global.cfg.framesPathPrefix, "som");
+  frameData = global.core.getDisplay(req.session.user, global.cfg.framesPathPrefix, "som");
   // -------------------------------
 
   SessionState.switchScreenTo(sess.state, "som", frameData.frames, 0);
@@ -81,7 +81,7 @@ exports.getTopScreen = function (req, res) {
   let frames = [];
   // -------------------------------
   // Call the core
-  const displayFrames = global.core.getDisplay(global.cfg.framesPathPrefix, type, pageId, frameId);
+  const displayFrames = global.core.getDisplay(req.session.user, global.cfg.framesPathPrefix, type, pageId, frameId);
   frames = displayFrames.frames;
   // -------------------------------
 
@@ -115,9 +115,9 @@ exports.rescore = function (req, res) {
 
   // -------------------------------
   // Call the core
-  global.core.addLikes(likes);
-  global.core.removeLikes(unlikes);
-  global.core.rescore(textQuery);
+  global.core.addLikes(req.session.user, likes);
+  global.core.removeLikes(req.session.user, unlikes);
+  global.core.rescore(req.session.user, textQuery);
   // -------------------------------
 
   // Reset likes
@@ -135,7 +135,7 @@ exports.submitFrame = function (req, res) {
 
   // -------------------------------
   // Call the core
-  global.core.submitToServer(submittedFrameId);
+  global.core.submitToServer(req.session.user, submittedFrameId);
   // -------------------------------
 
   res.status(200).jsonp({});
@@ -149,6 +149,7 @@ exports.getAutocompleteResults = function (req, res) {
   // -------------------------------
   // Call the core
   const acKeywords = global.core.autocompleteKeywords(
+    req.session.user, 
     global.cfg.framesPathPrefix,
     prefix,
     global.cfg.autocompleteResCount
@@ -163,7 +164,7 @@ exports.getTarget = function (req, res) {
 
   // -------------------------------
   // Call the core
-  const target = global.core.getTarget();
+  const target = global.core.getTarget(req.session.user);
   
   global.logger.log("info", target)
 
@@ -176,7 +177,7 @@ exports.resetSearchSession = function (req, res) {
 
   // -------------------------------
   // Call the core
-  global.core.resetAll();
+  global.core.resetAll(req.session.user);
   // -------------------------------
 
   SessionState.resetSearchSession(sess.state);

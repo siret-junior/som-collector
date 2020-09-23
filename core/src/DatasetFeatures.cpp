@@ -31,6 +31,7 @@ DatasetFeatures::DatasetFeatures(const DatasetFrames &p, const Config &config)
   : n(p.size())
   , features_dim(config.features_dim)
 {
+	info("Loading feature matrix");
 	data.resize(features_dim * n);
 	std::ifstream in(config.features_file, std::ios::binary);
 	if (!in.good()) {

@@ -22,30 +22,32 @@
 #ifndef somhunter_h
 #define somhunter_h
 
+#include <list>
+#include <mutex>
+#include <random>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
-#include <random>
 
 #include "AsyncSom.h"
 #include "DatasetFeatures.h"
 #include "DatasetFrames.h"
 #include "KeywordRanker.h"
+#include "LikesLogger.h"
 #include "RelevanceScores.h"
 #include "Submitter.h"
-#include "LikesLogger.h"
-
-/* This is the main backend class. */
 
 class SomHunter
 {
 	// *** LOADED DATASET ***
-	DatasetFrames frames;
-	const DatasetFeatures features;
-	const KeywordRanker keywords;
 	const Config config;
+	const DatasetFeatures *features;
+	const KeywordRanker *keywords;
 
 	// *** SEARCH CONTEXT ***
+	// Frames state
+	DatasetFrames frames;
 	// Relevance scores
 	ScoreModel scores;
 
@@ -72,29 +74,31 @@ class SomHunter
 	VideoFrame targetFrame;
 	FeedbackLogger flogger;
 
-    std::mt19937 gen;
+	std::mt19937 gen;
 	std::uniform_int_distribution<int> distrib;
 
 public:
 	SomHunter() = delete;
 	/** The main ctor with the filepath to the JSON config file */
-	inline SomHunter(const Config &cfg)
+	inline SomHunter(const Config &cfg,
+	                 const DatasetFeatures *feats,
+	                 const KeywordRanker *kws)
 	  : config(cfg)
+	  , features(feats)
+	  , keywords(kws)
 	  , frames(cfg)
-	  , features(frames, cfg)
 	  , scores(frames)
-	  , keywords(cfg)
 	  , asyncSom(cfg)
 	  , submitter(cfg.submitter_config)
 	  , flogger(cfg)
 	  , gen(40)
-	  , distrib(0, features.size())
+	  , distrib(0, features->size())
 	  , targetId(0)
 	  , targetFrame(frames.get_frame(0))
 	{
 		targetId = distrib(gen);
 		targetFrame = frames.get_frame(0);
-		asyncSom.start_work(features, scores);
+		asyncSom.start_work(*features, scores);
 		debug("New target id = " << targetId);
 	}
 
@@ -166,6 +170,45 @@ private:
 	FramePointerRange get_page_from_last(PageId page);
 
 	void reset_scores();
+};
+
+/* This is the main backend class. */
+
+class SomHuntersGuild
+{
+
+	// Hunter id for each key
+	std::unordered_map<std::string, std::unique_ptr<SomHunter>>
+	  id_to_hunter;
+	std::mutex h_mutex;
+
+	// *** DATASET ***
+	const Config cfg;
+	const DatasetFeatures features;
+	const KeywordRanker kws;
+
+public:
+	SomHuntersGuild() = delete;
+
+	inline SomHuntersGuild(const Config &cfg)
+	  : cfg(cfg)
+	  , features(DatasetFrames(cfg), cfg) // TODO is it really necessary to load all frames?
+	  , kws(cfg)
+	{
+		debug("SomHuntersGuild created");
+	}
+
+	inline SomHunter *get(const std::string &id)
+	{
+		if (id_to_hunter.find(id) == id_to_hunter.end()) {
+			const std::lock_guard<std::mutex> lock(h_mutex);
+			id_to_hunter.emplace(std::make_pair(
+			  std::string(id),
+			  std::make_unique<SomHunter>(cfg, &features, &kws)));
+			info("New hunter was created with id " << id);
+		}
+		return id_to_hunter[id].get();
+	}
 };
 
 #endif

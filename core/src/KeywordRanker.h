@@ -91,7 +91,9 @@ public:
 	                                  config.pre_PCA_features_dim))
 	  , kw_pca_mean_vec(parse_float_vector(config.kw_bias_vec_file,
 	                                       config.pre_PCA_features_dim))
-	{}
+	{
+		debug("Loaded keywords");
+	}
 
 	KeywordRanker(const KeywordRanker &) = delete;
 	KeywordRanker &operator=(const KeywordRanker &) = delete;

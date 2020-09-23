@@ -76,11 +76,11 @@ DatasetFrames::parse_top_kws_for_imgs_text_file(const std::string &filepath)
 
 DatasetFrames::DatasetFrames(const Config &config)
 {
+	debug("Loading image paths");
+
 	// Save the config values
 	frames_path_prefix = config.frames_path_prefix;
 	offs = config.filename_offsets;
-
-	info("Loading image paths");
 
 	std::ifstream in(config.frames_list_file);
 	if (!in.good()) {

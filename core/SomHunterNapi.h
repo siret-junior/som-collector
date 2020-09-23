@@ -32,7 +32,7 @@ public:
 
 private:
 	static Napi::FunctionReference constructor;
-	SomHunter *somhunter;
+	SomHuntersGuild *somhunter;
 
 	Napi::Value get_display(const Napi::CallbackInfo &info);
 

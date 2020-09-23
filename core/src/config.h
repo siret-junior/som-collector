@@ -85,4 +85,7 @@ constexpr float RANDOM_DISPLAY_WEIGHT = 3.0f;
 /** SOM window image grid height */
 #define SOM_DISPLAY_GRID_HEIGHT 8
 
+/** Number of threads to be used in critical parts */
+constexpr size_t NUM_OF_THREADS = 4; // or std::thread::hardware_concurrency();
+
 #endif

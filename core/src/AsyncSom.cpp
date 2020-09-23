@@ -124,13 +124,29 @@ AsyncSom::async_som_worker(AsyncSom *parent, const Config &cfg)
 			continue;
 		std::vector<size_t> mapping(n);
 
-		mapPointsToKohos(n,
-		                 SOM_DISPLAY_GRID_WIDTH *
-		                   SOM_DISPLAY_GRID_HEIGHT,
-		                 cfg.features_dim,
-		                 points,
-		                 koho,
-		                 mapping);
+		{
+			size_t n_threads = NUM_OF_THREADS;
+			std::vector<std::thread> threads(n_threads);
+
+			auto worker = [&](size_t id) {
+				size_t start = id * n / n_threads;
+				size_t end = (id + 1) * n / n_threads;
+				mapPointsToKohos(start,
+				                 end,
+				                 SOM_DISPLAY_GRID_WIDTH *
+				                   SOM_DISPLAY_GRID_HEIGHT,
+				                 cfg.features_dim,
+				                 points,
+				                 koho,
+				                 mapping);
+			};
+
+			for (size_t i = 0; i < n_threads; ++i)
+				threads[i] = std::thread(worker, i);
+
+			for (size_t i = 0; i < n_threads; ++i)
+				threads[i].join();
+		}
 
 		if (parent->new_data || parent->terminate)
 			continue;
@@ -141,7 +157,6 @@ AsyncSom::async_som_worker(AsyncSom *parent, const Config &cfg)
 		for (ImageId im = 0; im < mapping.size(); ++im)
 			parent->mapping[mapping[im]].push_back(im);
 		parent->koho = std::move(koho);
-			
 
 		std::atomic_thread_fence(std::memory_order_release);
 		parent->m_ready = true;
