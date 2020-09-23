@@ -29,17 +29,29 @@ FeedbackLogger::log_feedback(const std::string &type,
 		warn("wtf, directory was not created");
 
 	{
+        info("Logging " << type);
+        // Update iters
+        if (type == FeedbackLogger::RESET)
+            target_iter = 0;
+
+        if (type == FeedbackLogger::RESET || type == FeedbackLogger::TEXT)
+            curr_iter = 0;
+
         auto curr_time = timestamp();
+
 		std::string path = usr_log_dir + std::string("/") +
 		                   std::to_string(curr_time) + ".csv";
 		std::ofstream o(path.c_str(), std::ios::app);
 		if (!o) {
 			warn("Could not write a log file!");
 		} else {
+            // TYPE
+            o << type << ",";
+
             // USER, iterations, timestamp, and timediff
             o << user << ","
-              << curr_iter << ","
-              << target_iter << ","
+              << curr_iter++ << ","
+              << target_iter++ << ","
               << curr_time << ","
               << curr_time - laction_time << ",";
             
