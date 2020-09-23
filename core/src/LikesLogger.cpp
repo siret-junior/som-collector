@@ -67,6 +67,9 @@ FeedbackLogger::log_feedback(const std::string &type,
             int histogram[HISTOGRAM_BINS];
             float bin_part = 2.0f / HISTOGRAM_BINS;
 
+            for (size_t i = 0; i < HISTOGRAM_BINS; ++i)
+                histogram[i] = 0;
+
             for (auto && img : display) {
                 auto img_frame = frames.get_frame(img);
                 float dist = features.d_dot(target, img);
