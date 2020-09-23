@@ -66,7 +66,7 @@ class SomHunter
 	AsyncSom asyncSom;
 
 	// VBS logging
-	Submitter submitter;
+	// Submitter submitter;
 	UsedTools used_tools;
 
 	// Relevance feedback logging
@@ -80,7 +80,8 @@ class SomHunter
 public:
 	SomHunter() = delete;
 	/** The main ctor with the filepath to the JSON config file */
-	inline SomHunter(const Config &cfg,
+	inline SomHunter(const std::string usr,
+	                 const Config &cfg,
 	                 const DatasetFeatures *feats,
 	                 const KeywordRanker *kws)
 	  : config(cfg)
@@ -89,8 +90,8 @@ public:
 	  , frames(cfg)
 	  , scores(frames)
 	  , asyncSom(cfg)
-	  , submitter(cfg.submitter_config)
-	  , flogger(cfg)
+	  //, submitter(cfg.submitter_config)
+	  , flogger(usr, cfg)
 	  , gen(40)
 	  , distrib(0, features->size())
 	  , targetId(0)
@@ -192,7 +193,8 @@ public:
 
 	inline SomHuntersGuild(const Config &cfg)
 	  : cfg(cfg)
-	  , features(DatasetFrames(cfg), cfg) // TODO is it really necessary to load all frames?
+	  , features(DatasetFrames(cfg),
+	             cfg) // TODO is it really necessary to load all frames?
 	  , kws(cfg)
 	{
 		debug("SomHuntersGuild created");
@@ -204,7 +206,7 @@ public:
 			const std::lock_guard<std::mutex> lock(h_mutex);
 			id_to_hunter.emplace(std::make_pair(
 			  std::string(id),
-			  std::make_unique<SomHunter>(cfg, &features, &kws)));
+			  std::make_unique<SomHunter>(id, cfg, &features, &kws)));
 			info("New hunter was created with id " << id);
 		}
 		return id_to_hunter[id].get();

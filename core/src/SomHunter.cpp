@@ -31,7 +31,7 @@
 FramePointerRange
 SomHunter::get_display(DisplayType d_type, ImageId selected_image, PageId page)
 {
-	submitter.poll();
+	// submitter.poll();
 
 	switch (d_type) {
 		case DisplayType::DRand:
@@ -68,28 +68,28 @@ SomHunter::get_display(DisplayType d_type, ImageId selected_image, PageId page)
 void
 SomHunter::add_likes(const std::vector<ImageId> &likes)
 {
-	submitter.poll();
+	// submitter.poll();
 
 	for (auto ii : likes) {
 		this->likes.insert(ii);
 
 		frames.get_frame(ii).liked = true;
 
-		submitter.log_like(frames, current_display_type, ii);
+		// submitter.log_like(frames, current_display_type, ii);
 	}
 }
 
 void
 SomHunter::remove_likes(const std::vector<ImageId> &likes)
 {
-	submitter.poll();
+	// submitter.poll();
 
 	for (auto ii : likes) {
 		this->likes.erase(ii);
 
 		frames.get_frame(ii).liked = false;
 
-		submitter.log_dislike(frames, current_display_type, ii);
+		// submitter.log_dislike(frames, current_display_type, ii);
 	}
 }
 
@@ -112,9 +112,13 @@ SomHunter::autocomplete_keywords(const std::string &prefix, size_t count) const
 void
 SomHunter::rescore(const std::string &text_query)
 {
-	flogger.log_feedback(targetId, shown_images, likes);
+	std::string former_text_query = last_text_query;
 
-	submitter.poll();
+	// For simplicity, every change of text query
+	// resets scores and ignore likes
+	if (former_text_query != text_query)
+		likes.clear();
+	// submitter.poll();
 
 	// Rescore text query
 	rescore_keywords(text_query);
@@ -124,6 +128,29 @@ SomHunter::rescore(const std::string &text_query)
 
 	// Start SOM computation
 	som_start();
+
+	// Log relevance feedback and text query
+	if (former_text_query != text_query)
+		flogger.log_feedback(FeedbackLogger::TEXT,
+		                     text_query,
+		                     targetId,
+		                     shown_images,
+		                     likes,
+		                     *features,
+		                     scores,
+		                     frames,
+		                     IMAGE_ID_ERR_VAL);
+
+	if (!likes.empty())
+		flogger.log_feedback(FeedbackLogger::FEEDBACK,
+		                     text_query,
+		                     targetId,
+		                     shown_images,
+		                     likes,
+		                     *features,
+		                     scores,
+		                     frames,
+		                     IMAGE_ID_ERR_VAL);
 
 	// Update search context
 	shown_images.clear();
@@ -142,14 +169,14 @@ SomHunter::rescore(const std::string &text_query)
 	debug("used_tools.topknn_used = " << used_tools.topknn_used);
 	debug("used_tools.KWs_used = " << used_tools.KWs_used);
 	debug("used_tools.bayes_used = " << used_tools.bayes_used);
-	submitter.submit_and_log_rescore(frames,
+	/*submitter.submit_and_log_rescore(frames,
 	                                 scores,
 	                                 used_tools,
 	                                 current_display_type,
 	                                 top_n,
 	                                 last_text_query,
 	                                 config.topn_frames_per_video,
-	                                 config.topn_frames_per_shot);
+	                                 config.topn_frames_per_shot);*/
 }
 
 bool
@@ -161,16 +188,36 @@ SomHunter::som_ready() const
 void
 SomHunter::submit_to_server(ImageId frame_id)
 {
-	submitter.submit_and_log_submit(frames, current_display_type, frame_id);
+	// submitter.submit_and_log_submit(frames, current_display_type,
+	// frame_id);
+	flogger.log_feedback(FeedbackLogger::GUESS,
+	                     last_text_query,
+	                     targetId,
+	                     shown_images,
+	                     likes,
+	                     *features,
+	                     scores,
+	                     frames,
+	                     frame_id);
 }
 
 void
 SomHunter::reset_search_session()
 {
-	submitter.poll();
+	// submitter.poll();
+
+	flogger.log_feedback(FeedbackLogger::RESET,
+	                     last_text_query,
+	                     targetId,
+	                     shown_images,
+	                     likes,
+	                     *features,
+	                     scores,
+	                     frames,
+	                     IMAGE_ID_ERR_VAL);
 
 	reset_scores();
-	submitter.log_reset_search();
+	// submitter.log_reset_search();
 	som_start();
 
 	targetId = distrib(gen);
@@ -193,7 +240,7 @@ SomHunter::rescore_keywords(const std::string &query)
 	last_text_query = query;
 	used_tools.KWs_used = true;
 
-	submitter.log_add_keywords(query);
+	// submitter.log_add_keywords(query);
 }
 
 void
@@ -226,7 +273,7 @@ SomHunter::get_random_display()
 	  DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT, RANDOM_DISPLAY_WEIGHT);
 
 	// Log
-	submitter.log_show_random_display(frames, ids);
+	// submitter.log_show_random_display(frames, ids);
 	// Update context
 	for (auto id : ids)
 		shown_images.insert(id);
@@ -249,7 +296,7 @@ SomHunter::get_topn_display(PageId page)
 		                        config.topn_frames_per_shot);
 
 		// Log
-		submitter.log_show_topn_display(frames, ids);
+		// submitter.log_show_topn_display(frames, ids);
 
 		// Update context
 		current_display = frames.ids_to_video_frame(ids);
@@ -273,7 +320,7 @@ SomHunter::get_topn_context_display(PageId page)
 		                            config.topn_frames_per_shot);
 
 		// Log
-		submitter.log_show_topn_context_display(frames, ids);
+		// submitter.log_show_topn_context_display(frames, ids);
 
 		// Update context
 		current_display = frames.ids_to_video_frame(ids);
@@ -345,7 +392,7 @@ SomHunter::get_som_display()
 	}
 
 	// Log
-	submitter.log_show_som_display(frames, ids);
+	// submitter.log_show_som_display(frames, ids);
 
 	// Update context
 	for (auto id : ids) {
@@ -374,7 +421,7 @@ SomHunter::get_video_detail_display(ImageId selected_image)
 	FrameRange video_frames = frames.get_all_video_frames(v_id);
 
 	// Log
-	submitter.log_show_detail_display(frames, selected_image);
+	// submitter.log_show_detail_display(frames, selected_image);
 
 	// Update context
 	for (auto iter = video_frames.begin(); iter != video_frames.end();
@@ -396,13 +443,14 @@ SomHunter::get_topKNN_display(ImageId selected_image, PageId page)
 		debug("Getting KNN for image " << selected_image);
 		// Get ids
 		auto ids = features->get_top_knn(frames,
-		                                selected_image,
-		                                config.topn_frames_per_video,
-		                                config.topn_frames_per_shot);
+		                                 selected_image,
+		                                 config.topn_frames_per_video,
+		                                 config.topn_frames_per_shot);
 
 		debug("Got result of size " << ids.size());
 		// Log
-		submitter.log_show_topknn_display(frames, selected_image, ids);
+		// submitter.log_show_topknn_display(frames, selected_image,
+		// ids);
 
 		// Update context
 		current_display = frames.ids_to_video_frame(ids);
@@ -414,14 +462,14 @@ SomHunter::get_topKNN_display(ImageId selected_image, PageId page)
 		UsedTools ut;
 		ut.topknn_used = true;
 
-		submitter.submit_and_log_rescore(frames,
+		/*submitter.submit_and_log_rescore(frames,
 		                                 scores,
 		                                 ut,
 		                                 current_display_type,
 		                                 ids,
 		                                 last_text_query,
 		                                 config.topn_frames_per_video,
-		                                 config.topn_frames_per_shot);
+		                                 config.topn_frames_per_shot);*/
 
 		debug("Logging is done");
 	}
