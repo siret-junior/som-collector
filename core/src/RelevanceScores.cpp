@@ -255,7 +255,7 @@ ScoreModel::weighted_example(const std::vector<ImageId> &subset) const
 
 void
 ScoreModel::apply_bayes(std::set<ImageId> likes,
-                        const std::set<ImageId> &screen,
+                        const std::vector<ImageId> &screen,
                         const DatasetFeatures &features)
 {
 	if (likes.empty())

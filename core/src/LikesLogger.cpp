@@ -1,10 +1,13 @@
 
 #include <fstream>
 #include <filesystem>
+#include <math.h> 
 
 #include "LikesLogger.h"
 #include "DatasetFeatures.h"
 #include "RelevanceScores.h"
+
+#define HISTOGRAM_BINS 100
 
 const std::string FeedbackLogger::FEEDBACK = "feedback";
 const std::string FeedbackLogger::RESET = "reset";
@@ -15,16 +18,13 @@ void
 FeedbackLogger::log_feedback(const std::string &type,
                              const std::string &query,
                              const ImageId target,
-                             const std::set<ImageId> &display,
+                             const std::vector<ImageId> &display,
                              const std::set<ImageId> &likes,
                              const DatasetFeatures &features,
                              const ScoreModel &scores,
                              const DatasetFrames &frames,
                              const ImageId guess)
 {
-	if (likes.empty())
-		return;
-
 	if (!std::filesystem::is_directory(usr_log_dir))
 		warn("wtf, directory was not created");
 
@@ -53,7 +53,7 @@ FeedbackLogger::log_feedback(const std::string &type,
               << curr_iter++ << ","
               << target_iter++ << ","
               << curr_time << ","
-              << curr_time - laction_time << ",";
+              << (curr_time - laction_time) / 1000.0 << ",";
             
             // update last action time
             laction_time = curr_time;
@@ -63,16 +63,24 @@ FeedbackLogger::log_feedback(const std::string &type,
               << scores[target] << ","
               << scores.rank_of_image(target) << ",";
 
-            // DISPLAY
+            // DISPLAY and histogram computing
+            int histogram[HISTOGRAM_BINS];
+            float bin_part = 2.0f / HISTOGRAM_BINS;
+
             for (auto && img : display) {
                 auto img_frame = frames.get_frame(img);
+                float dist = features.d_dot(target, img);
                 o << img << ","
                   << img_frame.shot_ID << ","
                   << img_frame.video_ID << ","
                   << std::boolalpha << (likes.find(img) != likes.end()) << ","
-                  << features.d_dot(target, img) << ","
+                  << dist << ","
                   << scores[img] << ",";
+                histogram[(int) floor(dist / bin_part)]++;
             }
+
+            for (size_t i = 0; i < HISTOGRAM_BINS; ++i)
+                o << histogram[i] << ",";
 
             // GUESS
             if (guess != (IMAGE_ID_ERR_VAL)) {
@@ -82,7 +90,6 @@ FeedbackLogger::log_feedback(const std::string &type,
                 << guess_frame.video_ID << ",";
             } else 
                 o << "-1,-1,-1,";
-
 
 		}
 	}

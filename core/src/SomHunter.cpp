@@ -206,6 +206,7 @@ SomHunter::reset_search_session()
 {
 	// submitter.poll();
 
+	debug("Resetting searching and generating new target");
 	flogger.log_feedback(FeedbackLogger::RESET,
 	                     last_text_query,
 	                     targetId,
@@ -275,8 +276,9 @@ SomHunter::get_random_display()
 	// Log
 	// submitter.log_show_random_display(frames, ids);
 	// Update context
+	shown_images.clear();
 	for (auto id : ids)
-		shown_images.insert(id);
+		shown_images.push_back(id);
 	current_display = frames.ids_to_video_frame(ids);
 	current_display_type = DisplayType::DRand;
 
@@ -395,11 +397,12 @@ SomHunter::get_som_display()
 	// submitter.log_show_som_display(frames, ids);
 
 	// Update context
+	shown_images.clear();
 	for (auto id : ids) {
 		if (id == IMAGE_ID_ERR_VAL)
 			continue;
 
-		shown_images.insert(id);
+		shown_images.push_back(id);
 	}
 	current_display = frames.ids_to_video_frame(ids);
 	current_display_type = DisplayType::DSom;
@@ -426,7 +429,7 @@ SomHunter::get_video_detail_display(ImageId selected_image)
 	// Update context
 	for (auto iter = video_frames.begin(); iter != video_frames.end();
 	     ++iter) {
-		shown_images.insert(iter->frame_ID);
+		shown_images.push_back(iter->frame_ID);
 	}
 
 	current_display = frames.range_to_video_frame(video_frames);
@@ -494,8 +497,9 @@ SomHunter::get_page_from_last(PageId page)
 	                      current_display.cbegin() + end_off);
 
 	// Update context
+	shown_images.clear();
 	for (auto iter = res.begin(); iter != res.end(); ++iter)
-		shown_images.insert((*iter)->frame_ID);
+		shown_images.push_back((*iter)->frame_ID);
 
 	return res;
 }

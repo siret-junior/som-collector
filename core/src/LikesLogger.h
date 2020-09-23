@@ -50,7 +50,7 @@ public:
 	void log_feedback(const std::string &type,
 	                  const std::string &query,
 	                  const ImageId target,
-	                  const std::set<ImageId> &display,
+	                  const std::vector<ImageId> &display,
 	                  const std::set<ImageId> &likes,
 	                  const DatasetFeatures &features,
 	                  const ScoreModel &scores,

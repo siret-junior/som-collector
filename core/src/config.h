@@ -71,13 +71,13 @@ constexpr DisplayType POST_RESCORE_DISPLAY = DisplayType::DTopNContext;
 #define GLOBAL_LOG_FILE "somhunter.log"
 
 /** Pop-up window image grid width */
-#define DISPLAY_GRID_WIDTH 6
+#define DISPLAY_GRID_WIDTH 8
 
 /** Pop-up window image grid height */
-#define DISPLAY_GRID_HEIGHT 6
+#define DISPLAY_GRID_HEIGHT 8
 
 constexpr int TOP_N_SELECTED_FRAME_POSITION = 2;
-constexpr float RANDOM_DISPLAY_WEIGHT = 3.0f;
+constexpr float RANDOM_DISPLAY_WEIGHT = 1.0f;
 
 /** SOM window image grid width */
 #define SOM_DISPLAY_GRID_WIDTH 8

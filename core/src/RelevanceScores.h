@@ -58,7 +58,7 @@ public:
 	 * bayesian update rule.
 	 */
 	void apply_bayes(std::set<ImageId> likes,
-	                 const std::set<ImageId> &screen,
+	                 const std::vector<ImageId> &screen,
 	                 const DatasetFeatures &features);
 
 	// gets images with top scores and skips first offset

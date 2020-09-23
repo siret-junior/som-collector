@@ -56,7 +56,7 @@ class SomHunter
 
 	// Relevance feedback context
 	std::set<ImageId> likes;
-	std::set<ImageId> shown_images;
+	std::vector<ImageId> shown_images;
 
 	// Current display context
 	std::vector<VideoFramePointer> current_display;
