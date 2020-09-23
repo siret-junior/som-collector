@@ -218,6 +218,7 @@ SomHunter::reset_search_session()
 	                     IMAGE_ID_ERR_VAL);
 
 	reset_scores();
+	shown_images.clear();
 	// submitter.log_reset_search();
 	som_start();
 
@@ -509,7 +510,7 @@ SomHunter::reset_scores()
 {
 	used_tools.reset();
 
-	shown_images.clear();
+	//shown_images.clear();
 
 	// Reset likes
 	likes.clear();

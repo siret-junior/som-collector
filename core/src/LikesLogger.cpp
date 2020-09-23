@@ -59,7 +59,10 @@ FeedbackLogger::log_feedback(const std::string &type,
             laction_time = curr_time;
 
             // TARGET and its stuff
+            auto target_frame = frames.get_frame(target);
             o << target << ","
+              << target_frame.shot_ID << ","
+              << target_frame.video_ID << ","
               << scores[target] << ","
               << scores.rank_of_image(target) << ",";
 
@@ -94,6 +97,7 @@ FeedbackLogger::log_feedback(const std::string &type,
             } else 
                 o << "-1,-1,-1,";
 
+            o << std::endl;
 		}
 	}
 }
