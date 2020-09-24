@@ -9,6 +9,8 @@
 
 #define HISTOGRAM_BINS 100
 
+#define clamp(x, min, max) (x < min ? min : (x > max ? max : x))
+
 const std::string FeedbackLogger::FEEDBACK = "feedback";
 const std::string FeedbackLogger::RESET = "reset";
 const std::string FeedbackLogger::TEXT = "text";
@@ -29,13 +31,18 @@ FeedbackLogger::log_feedback(const std::string &type,
 		warn("wtf, directory was not created");
 
 	{
-        info("Logging " << type);
+        info("Logging " << type << ", target " << target);
         // Update iters
         if (type == FeedbackLogger::RESET)
             target_iter = 0;
 
         if (type == FeedbackLogger::RESET || type == FeedbackLogger::TEXT)
             curr_iter = 0;
+
+        if (type == FeedbackLogger::TEXT || type == FeedbackLogger::FEEDBACK) {
+            target_iter++;
+            curr_iter++;
+        }
 
         auto curr_time = timestamp();
 
@@ -45,13 +52,17 @@ FeedbackLogger::log_feedback(const std::string &type,
 		if (!o) {
 			warn("Could not write a log file!");
 		} else {
+            debug("Log file is opened.");
+            // set formatting
+            o << std::fixed << std::setprecision(8);
+
             // TYPE
             o << type << ",";
-
+            
             // USER, iterations, timestamp, and timediff
             o << user << ","
-              << curr_iter++ << ","
-              << target_iter++ << ","
+              << curr_iter << ","
+              << target_iter << ","
               << curr_time << ","
               << (curr_time - laction_time) / 1000.0 << ",";
             
@@ -65,6 +76,10 @@ FeedbackLogger::log_feedback(const std::string &type,
               << target_frame.video_ID << ","
               << scores[target] << ","
               << scores.rank_of_image(target) << ",";
+
+            o << query << ",";
+
+            debug("Computing histogram");
 
             // DISPLAY and histogram computing
             int histogram[HISTOGRAM_BINS];
@@ -82,7 +97,7 @@ FeedbackLogger::log_feedback(const std::string &type,
                   << std::boolalpha << (likes.find(img) != likes.end()) << ","
                   << dist << ","
                   << scores[img] << ",";
-                histogram[(int) floor(dist / bin_part)]++;
+                histogram[clamp((int) floor(dist / bin_part), 0, HISTOGRAM_BINS - 1)]++;
             }
 
             for (size_t i = 0; i < HISTOGRAM_BINS; ++i)
@@ -96,8 +111,11 @@ FeedbackLogger::log_feedback(const std::string &type,
                 << guess_frame.video_ID << ",";
             } else 
                 o << "-1,-1,-1,";
-
+            
             o << std::endl;
+            debug("Writing completed");
 		}
 	}
+    
+    debug("Logging completed");
 }

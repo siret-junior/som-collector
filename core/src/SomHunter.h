@@ -29,6 +29,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <tuple>
 
 #include "AsyncSom.h"
 #include "DatasetFeatures.h"
@@ -77,6 +78,8 @@ class SomHunter
 	std::mt19937 gen;
 	std::uniform_int_distribution<int> distrib;
 
+	std::mutex mutex;
+
 public:
 	SomHunter() = delete;
 	/** The main ctor with the filepath to the JSON config file */
@@ -92,7 +95,7 @@ public:
 	  , asyncSom(cfg)
 	  //, submitter(cfg.submitter_config)
 	  , flogger(usr, cfg)
-	  , gen(40)
+	  , gen(666)
 	  , distrib(0, features->size())
 	  , targetId(0)
 	  , targetFrame(frames.get_frame(0))
@@ -129,7 +132,7 @@ public:
 	bool som_ready() const;
 
 	/** Sumbits frame with given id to VBS server */
-	void submit_to_server(ImageId frame_id);
+	std::tuple<bool, bool, bool> submit_to_server(ImageId frame_id);
 
 	/** Resets current search context and starts new search */
 	void reset_search_session();

@@ -132,7 +132,7 @@ SomHunterNapi::get_display(const Napi::CallbackInfo &info)
 		auto hunter = somhunter->get(usr);
 		if (hunter == nullptr)
 			warn("Hunter not found for user " << usr << "!!!");
-			
+
 		display_frames =
 		  hunter->get_display(disp_type, selected_image, page_num);
 
@@ -586,14 +586,28 @@ SomHunterNapi::submit_to_server(const Napi::CallbackInfo &info)
 	const std::string usr = info[0].As<Napi::String>().Utf8Value();
 	ImageId frame_ID{ info[1].As<Napi::Number>().Uint32Value() };
 
+	napi_value result_arr;
+	napi_create_array(env, &result_arr);
 	try {
 		debug("API: CALL \n\t submit_to_server\n\t\frame_ID = "
 		      << frame_ID);
 
-		somhunter->get(usr)->submit_to_server(frame_ID);
+		auto res = somhunter->get(usr)->submit_to_server(frame_ID);
+
+		napi_value frame;
+		napi_get_boolean(env, std::get<0>(res), &frame);
+		napi_value shot;
+		napi_get_boolean(env, std::get<1>(res), &shot);
+		napi_value video;
+		napi_get_boolean(env, std::get<2>(res), &video);
+
+		napi_set_element(env, result_arr, 0, frame);
+		napi_set_element(env, result_arr, 1, shot);
+		napi_set_element(env, result_arr, 2, video);
+
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
 
-	return Napi::Object{};
+	return Napi::Object(env, result_arr);
 }

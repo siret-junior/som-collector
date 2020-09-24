@@ -112,6 +112,7 @@ SomHunter::autocomplete_keywords(const std::string &prefix, size_t count) const
 void
 SomHunter::rescore(const std::string &text_query)
 {
+	std::lock_guard<std::mutex> guard(mutex);
 	std::string former_text_query = last_text_query;
 
 	// For simplicity, every change of text query
@@ -185,7 +186,7 @@ SomHunter::som_ready() const
 	return asyncSom.map_ready();
 }
 
-void
+std::tuple<bool, bool, bool>
 SomHunter::submit_to_server(ImageId frame_id)
 {
 	// submitter.submit_and_log_submit(frames, current_display_type,
@@ -199,11 +200,16 @@ SomHunter::submit_to_server(ImageId frame_id)
 	                     scores,
 	                     frames,
 	                     frame_id);
+	auto guess = frames.get_frame(frame_id);
+	return { guess.frame_ID == targetFrame.frame_ID,
+		 guess.shot_ID == targetFrame.shot_ID,
+		 guess.video_ID == targetFrame.video_ID };
 }
 
 void
 SomHunter::reset_search_session()
 {
+	std::lock_guard<std::mutex> guard(mutex);
 	// submitter.poll();
 
 	debug("Resetting searching and generating new target");
@@ -218,7 +224,9 @@ SomHunter::reset_search_session()
 	                     IMAGE_ID_ERR_VAL);
 
 	reset_scores();
+	debug("Scores reseted");
 	shown_images.clear();
+	debug("Context reseted");
 	// submitter.log_reset_search();
 	som_start();
 
@@ -508,17 +516,21 @@ SomHunter::get_page_from_last(PageId page)
 void
 SomHunter::reset_scores()
 {
+	debug("Reseting scores");
 	used_tools.reset();
 
-	//shown_images.clear();
+	// shown_images.clear();
 
 	// Reset likes
+	debug("Clearing likes");
 	likes.clear();
 	for (auto &fr : frames) {
 		fr.liked = false;
 	}
+	debug("Likes cleared");
 
 	last_text_query = "";
 
 	scores.reset();
+	debug("Scores reseted");
 }

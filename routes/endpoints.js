@@ -98,7 +98,7 @@ exports.rescore = function (req, res) {
 
   const body = req.body;
   const q0 = body.q0;
-  const q1 = body.q1;
+  const q1 = "";
 
   let textQuery = q0;
 
@@ -135,10 +135,10 @@ exports.submitFrame = function (req, res) {
 
   // -------------------------------
   // Call the core
-  global.core.submitToServer(req.session.user, submittedFrameId);
+  const sub = global.core.submitToServer(req.session.user, submittedFrameId);
   // -------------------------------
 
-  res.status(200).jsonp({});
+  res.status(200).jsonp({correct: sub});
 };
 
 exports.getAutocompleteResults = function (req, res) {
