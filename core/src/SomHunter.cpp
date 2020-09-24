@@ -121,18 +121,13 @@ SomHunter::rescore(const std::string &text_query)
 		likes.clear();
 	// submitter.poll();
 
-	// Rescore text query
-	rescore_keywords(text_query);
-
-	// Rescore relevance feedback
-	rescore_feedback();
-
-	// Start SOM computation
-	som_start();
-
+	std::string last_displ = FeedbackLogger::DISPLAY_TOP;
+	if (current_display_type == DisplayType::DSom)
+		last_displ = FeedbackLogger::DISPLAY_SOM;
 	// Log relevance feedback and text query
 	if (former_text_query != text_query)
 		flogger.log_feedback(FeedbackLogger::TEXT,
+		                     last_displ,
 		                     text_query,
 		                     targetId,
 		                     shown_images,
@@ -144,6 +139,7 @@ SomHunter::rescore(const std::string &text_query)
 
 	if (!likes.empty())
 		flogger.log_feedback(FeedbackLogger::FEEDBACK,
+		                     last_displ,
 		                     text_query,
 		                     targetId,
 		                     shown_images,
@@ -152,6 +148,15 @@ SomHunter::rescore(const std::string &text_query)
 		                     scores,
 		                     frames,
 		                     IMAGE_ID_ERR_VAL);
+
+	// Rescore text query
+	rescore_keywords(text_query);
+
+	// Rescore relevance feedback
+	rescore_feedback();
+
+	// Start SOM computation
+	som_start();
 
 	// Update search context
 	shown_images.clear();
@@ -162,10 +167,10 @@ SomHunter::rescore(const std::string &text_query)
 		fr.liked = false;
 	}
 
-	auto top_n = scores.top_n(frames,
+	/*auto top_n = scores.top_n(frames,
 	                          TOPN_LIMIT,
 	                          config.topn_frames_per_video,
-	                          config.topn_frames_per_shot);
+	                          config.topn_frames_per_shot);*/
 
 	debug("used_tools.topknn_used = " << used_tools.topknn_used);
 	debug("used_tools.KWs_used = " << used_tools.KWs_used);
@@ -189,9 +194,13 @@ SomHunter::som_ready() const
 std::tuple<bool, bool, bool>
 SomHunter::submit_to_server(ImageId frame_id)
 {
+	std::string last_displ = FeedbackLogger::DISPLAY_TOP;
+	if (current_display_type == DisplayType::DSom)
+		last_displ = FeedbackLogger::DISPLAY_SOM;
 	// submitter.submit_and_log_submit(frames, current_display_type,
 	// frame_id);
 	flogger.log_feedback(FeedbackLogger::GUESS,
+	                     last_displ,
 	                     last_text_query,
 	                     targetId,
 	                     shown_images,
@@ -213,7 +222,13 @@ SomHunter::reset_search_session()
 	// submitter.poll();
 
 	debug("Resetting searching and generating new target");
+
+	std::string last_displ = FeedbackLogger::DISPLAY_TOP;
+	if (current_display_type == DisplayType::DSom)
+		last_displ = FeedbackLogger::DISPLAY_SOM;
+
 	flogger.log_feedback(FeedbackLogger::RESET,
+	                     last_displ,
 	                     last_text_query,
 	                     targetId,
 	                     shown_images,

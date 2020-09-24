@@ -30,6 +30,9 @@ public:
 	static const std::string TEXT;
 	static const std::string GUESS;
 
+	static const std::string DISPLAY_SOM;
+	static const std::string DISPLAY_TOP;
+
 	inline FeedbackLogger(const std::string &usr, const Config &cfg)
 	  : log_dir(cfg.feedback_log_dir)
 	  , user(usr)
@@ -48,6 +51,7 @@ public:
 	}
 
 	void log_feedback(const std::string &type,
+	                  const std::string &display_type,
 	                  const std::string &query,
 	                  const ImageId target,
 	                  const std::vector<ImageId> &display,

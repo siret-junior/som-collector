@@ -16,8 +16,12 @@ const std::string FeedbackLogger::RESET = "reset";
 const std::string FeedbackLogger::TEXT = "text";
 const std::string FeedbackLogger::GUESS = "guess";
 
+const std::string FeedbackLogger::DISPLAY_SOM = "som";
+const std::string FeedbackLogger::DISPLAY_TOP = "top";
+
 void
 FeedbackLogger::log_feedback(const std::string &type,
+                             const std::string &display_type,
                              const std::string &query,
                              const ImageId target,
                              const std::vector<ImageId> &display,
@@ -32,19 +36,6 @@ FeedbackLogger::log_feedback(const std::string &type,
 
 	{
 		info("Logging " << type << ", target " << target);
-		// Update iters
-		if (type == FeedbackLogger::RESET)
-			target_iter = 0;
-
-		if (type == FeedbackLogger::RESET ||
-		    type == FeedbackLogger::TEXT)
-			curr_iter = 0;
-
-		if (type == FeedbackLogger::TEXT ||
-		    type == FeedbackLogger::FEEDBACK) {
-			target_iter++;
-			curr_iter++;
-		}
 
 		auto curr_time = timestamp();
 
@@ -58,8 +49,8 @@ FeedbackLogger::log_feedback(const std::string &type,
 			// set formatting
 			o << std::fixed << std::setprecision(8);
 
-			// TYPE
-			o << type << ",";
+			// TYPE and display type
+			o << type << "," << display_type << ",";
 
 			// USER, iterations, timestamp, and timediff
 			o << user << "," << curr_iter << "," << target_iter
@@ -130,6 +121,19 @@ FeedbackLogger::log_feedback(const std::string &type,
 			debug("Writing completed");
 		}
 	}
+    // Update iters
+    if (type == FeedbackLogger::RESET)
+        target_iter = 0;
+
+    if (type == FeedbackLogger::RESET ||
+        type == FeedbackLogger::TEXT)
+        curr_iter = 0;
+
+    if (type == FeedbackLogger::TEXT ||
+        type == FeedbackLogger::FEEDBACK) {
+        target_iter++;
+        curr_iter++;
+    }
 
 	debug("Logging completed");
 }
