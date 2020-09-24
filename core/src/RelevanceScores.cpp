@@ -318,8 +318,8 @@ ScoreModel::apply_bayes(std::set<ImageId> likes,
 	}
 
 	// Throw away shown images
-	for (auto&& ii : screen)
-		scores[ii] = 0;
+	//for (auto&& ii : screen)
+	//	scores[ii] = 0;
 
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = end - start;

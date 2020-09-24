@@ -1,10 +1,10 @@
 
-#include <fstream>
 #include <filesystem>
-#include <math.h> 
+#include <fstream>
+#include <math.h>
 
-#include "LikesLogger.h"
 #include "DatasetFeatures.h"
+#include "LikesLogger.h"
 #include "RelevanceScores.h"
 
 #define HISTOGRAM_BINS 100
@@ -31,20 +31,22 @@ FeedbackLogger::log_feedback(const std::string &type,
 		warn("wtf, directory was not created");
 
 	{
-        info("Logging " << type << ", target " << target);
-        // Update iters
-        if (type == FeedbackLogger::RESET)
-            target_iter = 0;
+		info("Logging " << type << ", target " << target);
+		// Update iters
+		if (type == FeedbackLogger::RESET)
+			target_iter = 0;
 
-        if (type == FeedbackLogger::RESET || type == FeedbackLogger::TEXT)
-            curr_iter = 0;
+		if (type == FeedbackLogger::RESET ||
+		    type == FeedbackLogger::TEXT)
+			curr_iter = 0;
 
-        if (type == FeedbackLogger::TEXT || type == FeedbackLogger::FEEDBACK) {
-            target_iter++;
-            curr_iter++;
-        }
+		if (type == FeedbackLogger::TEXT ||
+		    type == FeedbackLogger::FEEDBACK) {
+			target_iter++;
+			curr_iter++;
+		}
 
-        auto curr_time = timestamp();
+		auto curr_time = timestamp();
 
 		std::string path = usr_log_dir + std::string("/") +
 		                   std::to_string(curr_time) + ".csv";
@@ -52,70 +54,82 @@ FeedbackLogger::log_feedback(const std::string &type,
 		if (!o) {
 			warn("Could not write a log file!");
 		} else {
-            debug("Log file is opened.");
-            // set formatting
-            o << std::fixed << std::setprecision(8);
+			debug("Log file is opened.");
+			// set formatting
+			o << std::fixed << std::setprecision(8);
 
-            // TYPE
-            o << type << ",";
-            
-            // USER, iterations, timestamp, and timediff
-            o << user << ","
-              << curr_iter << ","
-              << target_iter << ","
-              << curr_time << ","
-              << (curr_time - laction_time) / 1000.0 << ",";
-            
-            // update last action time
-            laction_time = curr_time;
+			// TYPE
+			o << type << ",";
 
-            // TARGET and its stuff
-            auto target_frame = frames.get_frame(target);
-            o << target << ","
-              << target_frame.shot_ID << ","
-              << target_frame.video_ID << ","
-              << scores[target] << ","
-              << scores.rank_of_image(target) << ",";
+			// USER, iterations, timestamp, and timediff
+			o << user << "," << curr_iter << "," << target_iter
+			  << "," << curr_time << ","
+			  << (curr_time - laction_time) / 1000.0 << ",";
 
-            o << query << ",";
+			// update last action time
+			laction_time = curr_time;
 
-            debug("Computing histogram");
+			// TARGET and its stuff
+			auto target_frame = frames.get_frame(target);
 
-            // DISPLAY and histogram computing
-            int histogram[HISTOGRAM_BINS];
-            float bin_part = 2.0f / HISTOGRAM_BINS;
+			// find best scored image from video
+			auto target_video =
+			  frames.get_all_video_frames(target_frame.video_ID);
+			float video_best_score = scores[target];
+			ImageId video_best_image = target;
+			for (auto iter = target_video.begin();
+			     iter != target_video.end();
+			     iter++) {
+				if (video_best_score < scores[iter->frame_ID]) {
+					video_best_score =
+					  scores[iter->frame_ID];
+					video_best_image = iter->frame_ID;
+				}
+			}
 
-            for (size_t i = 0; i < HISTOGRAM_BINS; ++i)
-                histogram[i] = 0;
+			o << target << "," << target_frame.shot_ID << ","
+			  << target_frame.video_ID << "," << scores[target]
+			  << "," << scores.rank_of_image(target) << ","
+			  << scores.rank_of_image(video_best_image) << ",";
 
-            for (auto && img : display) {
-                auto img_frame = frames.get_frame(img);
-                float dist = features.d_dot(target, img);
-                o << img << ","
-                  << img_frame.shot_ID << ","
-                  << img_frame.video_ID << ","
-                  << std::boolalpha << (likes.find(img) != likes.end()) << ","
-                  << dist << ","
-                  << scores[img] << ",";
-                histogram[clamp((int) floor(dist / bin_part), 0, HISTOGRAM_BINS - 1)]++;
-            }
+			o << query << ",";
 
-            for (size_t i = 0; i < HISTOGRAM_BINS; ++i)
-                o << histogram[i] << ",";
+			debug("Computing histogram");
 
-            // GUESS
-            if (guess != (IMAGE_ID_ERR_VAL)) {
-                auto guess_frame = frames.get_frame(guess);
-                o << guess << ","
-                << guess_frame.shot_ID << ","
-                << guess_frame.video_ID << ",";
-            } else 
-                o << "-1,-1,-1,";
-            
-            o << std::endl;
-            debug("Writing completed");
+			// DISPLAY and histogram computing
+			int histogram[HISTOGRAM_BINS];
+			float bin_part = 2.0f / HISTOGRAM_BINS;
+
+			for (size_t i = 0; i < HISTOGRAM_BINS; ++i)
+				histogram[i] = 0;
+
+			for (auto &&img : display) {
+				auto img_frame = frames.get_frame(img);
+				float dist = features.d_dot(target, img);
+				o << img << "," << img_frame.shot_ID << ","
+				  << img_frame.video_ID << "," << std::boolalpha
+				  << (likes.find(img) != likes.end()) << ","
+				  << dist << "," << scores[img] << ",";
+				histogram[clamp((int)floor(dist / bin_part),
+				                0,
+				                HISTOGRAM_BINS - 1)]++;
+			}
+
+			for (size_t i = 0; i < HISTOGRAM_BINS; ++i)
+				o << histogram[i] << ",";
+
+			// GUESS
+			if (guess != (IMAGE_ID_ERR_VAL)) {
+				auto guess_frame = frames.get_frame(guess);
+				o << guess << "," << guess_frame.shot_ID << ","
+				  << guess_frame.video_ID << ",";
+			} else
+				o << "-1,-1,-1,";
+
+			o << std::endl;
+			debug("Writing completed");
 		}
 	}
-    
-    debug("Logging completed");
+
+	debug("Logging completed");
 }
