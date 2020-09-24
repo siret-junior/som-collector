@@ -27,9 +27,9 @@
 #include <random>
 #include <set>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <tuple>
 
 #include "AsyncSom.h"
 #include "DatasetFeatures.h"
@@ -75,8 +75,11 @@ class SomHunter
 	VideoFrame targetFrame;
 	FeedbackLogger flogger;
 
-	std::mt19937 gen;
-	std::uniform_int_distribution<int> distrib;
+	//std::mt19937 gen;
+	//std::uniform_int_distribution<int> distrib;
+
+	std::vector<ImageId> targets;
+	size_t target_index;
 
 	std::mutex mutex;
 
@@ -95,13 +98,27 @@ public:
 	  , asyncSom(cfg)
 	  //, submitter(cfg.submitter_config)
 	  , flogger(usr, cfg)
-	  , gen(666)
-	  , distrib(0, features->size())
+	  //, gen(666)
+	  //, distrib(0, features->size())
+	  , target_index(0)
 	  , targetId(0)
 	  , targetFrame(frames.get_frame(0))
 	{
-		targetId = distrib(gen);
-		targetFrame = frames.get_frame(0);
+		std::ifstream in(config.target_list_file);
+		if (!in.good()) {
+			warn("Failed to open " << config.target_list_file);
+			throw std::runtime_error("missing image list");
+		}
+		{ 
+			targets.push_back(136);
+			for (std::string s; getline(in, s);) {
+				targets.push_back(std::stoi(s));
+			}
+			targets.push_back(136);
+		}
+
+		targetId = targets[target_index];
+		targetFrame = frames.get_frame(targetId);
 		asyncSom.start_work(*features, scores);
 		debug("New target id = " << targetId);
 	}
@@ -207,9 +224,10 @@ public:
 	{
 		if (id_to_hunter.find(id) == id_to_hunter.end()) {
 			const std::lock_guard<std::mutex> lock(h_mutex);
-			id_to_hunter.emplace(std::make_pair(
-			  std::string(id),
-			  std::make_unique<SomHunter>(id, cfg, &features, &kws)));
+			id_to_hunter.emplace(
+			  std::make_pair(std::string(id),
+			                 std::make_unique<SomHunter>(
+			                   id, cfg, &features, &kws)));
 			info("New hunter was created with id " << id);
 		}
 		return id_to_hunter[id].get();

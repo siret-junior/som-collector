@@ -47,5 +47,6 @@
   "topn_frames_per_video": 6,
   "topn_frames_per_shot": 2,
 
-  "feedback_log_dir": "feedback_log/"
+  "feedback_log_dir": "feedback_log/",
+  "target_list_file": "targets.txt"
 }

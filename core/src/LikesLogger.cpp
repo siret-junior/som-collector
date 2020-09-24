@@ -45,7 +45,6 @@ FeedbackLogger::log_feedback(const std::string &type,
 		if (!o) {
 			warn("Could not write a log file!");
 		} else {
-			debug("Log file is opened.");
 			// set formatting
 			o << std::fixed << std::setprecision(8);
 
@@ -85,15 +84,7 @@ FeedbackLogger::log_feedback(const std::string &type,
 
 			o << query << ",";
 
-			debug("Computing histogram");
-
-			// DISPLAY and histogram computing
-			int histogram[HISTOGRAM_BINS];
-			float bin_part = 2.0f / HISTOGRAM_BINS;
-
-			for (size_t i = 0; i < HISTOGRAM_BINS; ++i)
-				histogram[i] = 0;
-
+			// DISPLAY
 			for (auto &&img : display) {
 				auto img_frame = frames.get_frame(img);
 				float dist = features.d_dot(target, img);
@@ -101,9 +92,25 @@ FeedbackLogger::log_feedback(const std::string &type,
 				  << img_frame.video_ID << "," << std::boolalpha
 				  << (likes.find(img) != likes.end()) << ","
 				  << dist << "," << scores[img] << ",";
-				histogram[clamp((int)floor(dist / bin_part),
-				                0,
-				                HISTOGRAM_BINS - 1)]++;
+			}
+
+			// histogram computing
+			int histogram[HISTOGRAM_BINS];
+			float bin_part = 2.0f / HISTOGRAM_BINS;
+
+			for (size_t i = 0; i < HISTOGRAM_BINS; ++i)
+				histogram[i] = 0;
+			for (auto &&img1 : display) {
+				for (auto &&img2 : display) {
+					if (img1 > img2) {
+						float dist =
+						  features.d_dot(img1, img2);
+						histogram[clamp(
+						  (int)floor(dist / bin_part),
+						  0,
+						  HISTOGRAM_BINS - 1)]++;
+					}
+				}
 			}
 
 			for (size_t i = 0; i < HISTOGRAM_BINS; ++i)
@@ -118,22 +125,17 @@ FeedbackLogger::log_feedback(const std::string &type,
 				o << "-1,-1,-1,";
 
 			o << std::endl;
-			debug("Writing completed");
 		}
 	}
-    // Update iters
-    if (type == FeedbackLogger::RESET)
-        target_iter = 0;
+	// Update iters
+	if (type == FeedbackLogger::RESET)
+		target_iter = 0;
 
-    if (type == FeedbackLogger::RESET ||
-        type == FeedbackLogger::TEXT)
-        curr_iter = 0;
+	if (type == FeedbackLogger::RESET || type == FeedbackLogger::TEXT)
+		curr_iter = 0;
 
-    if (type == FeedbackLogger::TEXT ||
-        type == FeedbackLogger::FEEDBACK) {
-        target_iter++;
-        curr_iter++;
-    }
-
-	debug("Logging completed");
+	if (type == FeedbackLogger::TEXT || type == FeedbackLogger::FEEDBACK) {
+		target_iter++;
+		curr_iter++;
+	}
 }

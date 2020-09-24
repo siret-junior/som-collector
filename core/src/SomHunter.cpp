@@ -121,6 +121,15 @@ SomHunter::rescore(const std::string &text_query)
 		likes.clear();
 	// submitter.poll();
 
+	// Rescore text query
+	rescore_keywords(text_query);
+
+	// Rescore relevance feedback
+	rescore_feedback();
+
+	// Start SOM computation
+	som_start();
+
 	std::string last_displ = FeedbackLogger::DISPLAY_TOP;
 	if (current_display_type == DisplayType::DSom)
 		last_displ = FeedbackLogger::DISPLAY_SOM;
@@ -149,15 +158,6 @@ SomHunter::rescore(const std::string &text_query)
 		                     frames,
 		                     IMAGE_ID_ERR_VAL);
 
-	// Rescore text query
-	rescore_keywords(text_query);
-
-	// Rescore relevance feedback
-	rescore_feedback();
-
-	// Start SOM computation
-	som_start();
-
 	// Update search context
 	shown_images.clear();
 
@@ -171,10 +171,6 @@ SomHunter::rescore(const std::string &text_query)
 	                          TOPN_LIMIT,
 	                          config.topn_frames_per_video,
 	                          config.topn_frames_per_shot);*/
-
-	debug("used_tools.topknn_used = " << used_tools.topknn_used);
-	debug("used_tools.KWs_used = " << used_tools.KWs_used);
-	debug("used_tools.bayes_used = " << used_tools.bayes_used);
 	/*submitter.submit_and_log_rescore(frames,
 	                                 scores,
 	                                 used_tools,
@@ -221,8 +217,6 @@ SomHunter::reset_search_session()
 	std::lock_guard<std::mutex> guard(mutex);
 	// submitter.poll();
 
-	debug("Resetting searching and generating new target");
-
 	std::string last_displ = FeedbackLogger::DISPLAY_TOP;
 	if (current_display_type == DisplayType::DSom)
 		last_displ = FeedbackLogger::DISPLAY_SOM;
@@ -239,13 +233,16 @@ SomHunter::reset_search_session()
 	                     IMAGE_ID_ERR_VAL);
 
 	reset_scores();
-	debug("Scores reseted");
+	
 	shown_images.clear();
-	debug("Context reseted");
+	
 	// submitter.log_reset_search();
 	som_start();
 
-	targetId = distrib(gen);
+	++target_index;
+	if (target_index >= targets.size())
+		--target_index;
+	targetId = targets[target_index];
 	targetFrame = frames.get_frame(targetId);
 	debug("New target id = " << targetId);
 }
@@ -314,7 +311,6 @@ SomHunter::get_topn_display(PageId page)
 {
 	// Another display or first page -> load
 	if (current_display_type != DisplayType::DTopN || page == 0) {
-		debug("Loading top n display first page");
 		// Get ids
 		auto ids = scores.top_n(frames,
 		                        TOPN_LIMIT,
@@ -483,8 +479,6 @@ SomHunter::get_topKNN_display(ImageId selected_image, PageId page)
 		current_display = frames.ids_to_video_frame(ids);
 		current_display_type = DisplayType::DTopKNN;
 
-		debug("Context is ready");
-
 		// KNN is query by example so we NEED to log a rerank
 		UsedTools ut;
 		ut.topknn_used = true;
@@ -497,8 +491,6 @@ SomHunter::get_topKNN_display(ImageId selected_image, PageId page)
 		                                 last_text_query,
 		                                 config.topn_frames_per_video,
 		                                 config.topn_frames_per_shot);*/
-
-		debug("Logging is done");
 	}
 
 	return get_page_from_last(page);
@@ -531,21 +523,17 @@ SomHunter::get_page_from_last(PageId page)
 void
 SomHunter::reset_scores()
 {
-	debug("Reseting scores");
 	used_tools.reset();
 
 	// shown_images.clear();
 
 	// Reset likes
-	debug("Clearing likes");
 	likes.clear();
 	for (auto &fr : frames) {
 		fr.liked = false;
 	}
-	debug("Likes cleared");
 
 	last_text_query = "";
 
 	scores.reset();
-	debug("Scores reseted");
 }
