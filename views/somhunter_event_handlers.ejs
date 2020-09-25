@@ -424,10 +424,19 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           throw Error(data.error.message);
         }
 
-        // Now request new display
-        showTopDisplay();
-
         showGlobalMessage("Search reset.", "", 5000, "s");
+        // Now request new display and disable others
+        if (vd.somhunter.display_available == "topn") {
+          document.getElementById("rescore-som-btn").style.display = "none";
+          document.getElementById("rescore-topn-btn").style.display = "block";
+          showTopDisplay();
+        } else {
+          document.getElementById("rescore-som-btn").style.display = "block";
+          document.getElementById("rescore-topn-btn").style.display = "none";
+          forceSOMDone = false;
+          forceShowSomDisplay();
+        }
+
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));

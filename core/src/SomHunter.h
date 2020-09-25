@@ -152,7 +152,7 @@ public:
 	std::tuple<bool, bool, bool> submit_to_server(ImageId frame_id);
 
 	/** Resets current search context and starts new search */
-	void reset_search_session();
+	DisplayType reset_search_session();
 
 	/** Returns pointer to target frame */
 	VideoFramePointer get_target_image();

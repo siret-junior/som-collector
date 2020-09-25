@@ -37,9 +37,9 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       <div class="small-6 cell">
         <a class="button block-btn new-seach-btn" onclick="resetSearchSession()">New search</a>
       </div>
-      <div class="small-6 cell">
+      <!--<div class="small-6 cell">
         <a class="button block-btn help-btn" data-open="modalHelp">Help</a>
-      </div>
+      </div>-->
     
     </div>
 
@@ -68,11 +68,11 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         <%- include autocomplete_logic.ejs %>
 
         <div class="autocomplete-input-cont small-12 cell">
-          <a class="button block-btn rescore-btn" onclick="rescoreAndShowSom()">Rescore to SOM</a>
+          <a id="rescore-som-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowSom()">Rescore to SOM</a>
         </div>
 
         <div class="autocomplete-input-cont small-12 cell">
-          <a class="button block-btn rescore-btn" onclick="rescore();showTopDisplay()">Rescore to top N</a>
+          <a id="rescore-topn-btn" class="button block-btn rescore-btn" onclick="rescore();showTopDisplay()">Rescore to top N</a>
         </div>
       </div>
     </form>

@@ -211,7 +211,7 @@ SomHunter::submit_to_server(ImageId frame_id)
 		 guess.video_ID == targetFrame.video_ID };
 }
 
-void
+DisplayType
 SomHunter::reset_search_session()
 {
 	std::lock_guard<std::mutex> guard(mutex);
@@ -244,7 +244,12 @@ SomHunter::reset_search_session()
 		--target_index;
 	targetId = targets[target_index];
 	targetFrame = frames.get_frame(targetId);
-	debug("New target id = " << targetId);
+	debug("New target id = " << targetId << ", target index = " << target_index);
+
+	if ((target_index % 2) == 1)
+		return DisplayType::DTopN;
+
+	return DisplayType::DSom;
 }
 
 void

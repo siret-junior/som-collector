@@ -75,6 +75,7 @@ exports.resetSearchSession = function (state) {
       frames: [],
     });
   state.screen = null;
+  state.display_available = "som";
 };
 
 exports.getLikes = function (state) {

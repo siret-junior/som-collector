@@ -177,13 +177,14 @@ exports.resetSearchSession = function (req, res) {
 
   // -------------------------------
   // Call the core
-  global.core.resetAll(req.session.user);
+  const avail_disp = global.core.resetAll(req.session.user);
   // -------------------------------
 
   SessionState.resetSearchSession(sess.state);
 
   let viewData = {};
   viewData.somhunter = SessionState.getSomhunterUiState(sess.state);
+  viewData.somhunter.display_available = avail_disp;
 
   res.status(200).jsonp({ viewData: viewData });
 };

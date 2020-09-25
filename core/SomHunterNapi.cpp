@@ -378,17 +378,25 @@ SomHunterNapi::reset_all(const Napi::CallbackInfo &info)
 		                     "(SomHunterNapi::reset_all)")
 		  .ThrowAsJavaScriptException();
 	}
+
 	const std::string usr = info[0].As<Napi::String>().Utf8Value();
+	DisplayType disp = DisplayType::DNull;
 	try {
 		debug("API: CALL \n\t reset_all()");
 
-		somhunter->get(usr)->reset_search_session();
+		disp = somhunter->get(usr)->reset_search_session();
 
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
 
-	return Napi::Object{};
+	napi_value result;
+	if (disp == DisplayType::DSom)
+		napi_create_string_utf8(env, "som", 3, &result);
+	else
+		napi_create_string_utf8(env, "topn", 4, &result);
+	
+	return Napi::Object(env, result);
 }
 
 Napi::Value
