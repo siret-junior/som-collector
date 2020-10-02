@@ -15,6 +15,7 @@ const std::string FeedbackLogger::FEEDBACK = "feedback";
 const std::string FeedbackLogger::RESET = "reset";
 const std::string FeedbackLogger::TEXT = "text";
 const std::string FeedbackLogger::GUESS = "guess";
+const std::string FeedbackLogger::ISSUE = "issue";
 
 const std::string FeedbackLogger::DISPLAY_SOM = "som";
 const std::string FeedbackLogger::DISPLAY_TOP = "top";

@@ -25,6 +25,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
   let lastPageTime = 0;
   let pageLoadSpan = 1500;
   let ignoreNextLike = false;
+  let working = false;
 
 
   function showNextTopDisplay(id, thisFilename) {
@@ -92,7 +93,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         // Get updated view data
         viewData = data.viewData;
         putDocumentToState(viewData);
-
+        
+        endWorking();
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
@@ -105,21 +107,46 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       });
   }
 
+  function startWorking() {
+    if (working) {
+      console.log("Working! Ignoring request.");
+      return false;
+    }
+    working = true;
+
+    showGlobalMessage(
+      "Working... Ignoring all inputs...",
+      "",
+      120000,
+    );
+    return true;
+  }
+
+  function endWorking(closePopUp = true) {
+    working = false;
+    if (closePopUp)
+      clearGlobalMesssage();
+  }
+
   var forceSOMDone = true;
 
   function rescoreAndShowSom() {
-    rescore();
-    showGlobalMessage(
-      "Loading SOM",
-      "",
-      2500,
-    );
+    if (startWorking()) {
+      rescore();
 
-    const elem = document.getElementById("frameGrid");
-    elem.classList.remove("som-grid");
-    elem.innerHTML = "";
-    forceSOMDone = false;
-    setTimeout(forceShowSomDisplay, 2500);
+      const elem = document.getElementById("frameGrid");
+      elem.classList.remove("som-grid");
+      elem.innerHTML = "";
+      forceSOMDone = false;
+      setTimeout(forceShowSomDisplay, 2500);
+    }
+  }
+
+  function rescoreAndShowTop() {
+    if (startWorking()) {
+      rescore();
+      showTopDisplay();
+    }
   }
 
   function forceShowSomDisplay() {
@@ -149,17 +176,12 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         // Get updated view data
         viewData = data.viewData;
         putDocumentToState(viewData);
-
+        endWorking();
       })
       .catch((e) => {
         console.log(e);
         console.log(e.message);
         setTimeout(forceShowSomDisplay, 1000);
-        showGlobalMessage(
-          "Loading SOM",
-          "",
-          900,
-        );
       });
   }
 
@@ -362,92 +384,131 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
   }
 
   function submitImage(frameId) {
+    if (startWorking()) {
+      // Request input data
+      const reqData = {
+        frameId: frameId,
+      };
 
-    // Request input data
-    const reqData = {
-      frameId: frameId,
-    };
-
-    // Make the request
-    fetch("/submit_frame", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reqData),
-    })
-      .then((res) => {
-        if (!res.ok) { throw Error(res.statusText); }
-        return res.json()
+      // Make the request
+      fetch("/submit_frame", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reqData),
       })
-      .then((data) => {
-        // Handle error
-        if (data.error) {
-          throw Error(data.error.message);
-        }
-
-        //showGlobalMessage(`Frame '${frameId}' submitted.`, "", 5000,"s");      
-        showGlobalMessage("Frame correct: " + data.correct[0] + ", shot correct: " + data.correct[1] + ", video correct: " + data.correct[2], "", 5000, "s");
-      })
-      .catch((e) => {
-        console.log("Error: " + JSON.stringify(e.message));
-        showGlobalMessage(
-          "Request failed!",
-          JSON.stringify(e.message),
-          5000,
-          "e"
-        );
-      });
+        .then((res) => {
+          if (!res.ok) { throw Error(res.statusText); }
+          return res.json()
+        })
+        .then((data) => {
+          // Handle error
+          if (data.error) {
+            throw Error(data.error.message);
+          }
+ 
+          endWorking();
+          showGlobalMessage("Frame correct: " + data.correct[0] + ", shot correct: " + data.correct[1] + ", video correct: " + data.correct[2], "", 5000, "s");
+        })
+        .catch((e) => {
+          console.log("Error: " + JSON.stringify(e.message));
+          showGlobalMessage(
+            "Request failed!",
+            JSON.stringify(e.message),
+            5000,
+            "e"
+          );
+        });
+    }
   }
 
+  function reportIssue() {
+    if (startWorking()) {
+
+      // Make the request
+      fetch("/report_issue", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      })
+        .then((res) => {
+          if (!res.ok) { throw Error(res.statusText); }
+          return res.json()
+        })
+        .then((data) => {
+          // Handle error
+          if (data.error) {
+            throw Error(data.error.message);
+          }
+          endWorking();
+        })
+        .catch((e) => {
+          console.log("Error: " + JSON.stringify(e.message));
+          showGlobalMessage(
+            "Request failed!",
+            JSON.stringify(e.message),
+            5000,
+            "e"
+          );
+        });
+    }
+  }
 
   function resetSearchSession() {
-    pageId = 0;
-    // Request input data
-    const reqData = {};
+    if (startWorking()) {
+      pageId = 0;
+      // Request input data
+      const reqData = {};
 
-    // Make the request
-    fetch("/reset_search_session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reqData),
-    })
-      .then((res) => {
-        if (!res.ok) { throw Error(res.statusText); }
-        return res.json()
+      // Make the request
+      fetch("/reset_search_session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reqData),
       })
-      .then((data) => {
-        // Handle error
-        if (data.error) {
-          throw Error(data.error.message);
-        }
+        .then((res) => {
+          if (!res.ok) { throw Error(res.statusText); }
+          return res.json()
+        })
+        .then((data) => {
+          // Handle error
+          if (data.error) {
+            throw Error(data.error.message);
+          }
 
-        showGlobalMessage("Search reset.", "", 5000, "s");
-        // Now request new display and disable others
-        if (vd.somhunter.display_available == "topn") {
-          document.getElementById("rescore-som-btn").style.display = "none";
-          document.getElementById("rescore-topn-btn").style.display = "block";
-          showTopDisplay();
-        } else {
-          document.getElementById("rescore-som-btn").style.display = "block";
-          document.getElementById("rescore-topn-btn").style.display = "none";
-          forceSOMDone = false;
-          forceShowSomDisplay();
-        }
+          // Get updated view data
+          vd.somhunter = data.viewData.somhunter;
+          updateRescoreButton();
+          updateTargetImage();
+        })
+        .catch((e) => {
+          console.log("Error: " + JSON.stringify(e.message));
+          showGlobalMessage(
+            "Request failed!",
+            JSON.stringify(e.message),
+            5000
+          );
+        });
+    }
+  }
 
-      })
-      .catch((e) => {
-        console.log("Error: " + JSON.stringify(e.message));
-        showGlobalMessage(
-          "Request failed!",
-          JSON.stringify(e.message),
-          5000
-        );
-      });
-
-    updateTargetImage();
+  function updateRescoreButton() {
+    // Now request new display and disable others
+    if (vd.somhunter.display_available == "topn") {
+      document.getElementById("rescore-som-btn").style.display = "none";
+      document.getElementById("rescore-topn-btn").style.display = "block";
+      showTopDisplay();
+    } else {
+      document.getElementById("rescore-som-btn").style.display = "block";
+      document.getElementById("rescore-topn-btn").style.display = "none";
+      forceSOMDone = false;
+      forceShowSomDisplay();
+    }
   }
 
   function setupPanelButtons(viewData) {
@@ -557,7 +618,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           class="button frame-in-grid-hover-btn submit-frame" 
           onclick="submitImage(${id});event.cancelBubble=true;" 
           title="Submit this frame.">
-          Submit
+          S
         </a>
       </div>
     </li>`;
@@ -648,9 +709,10 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
   /** Put document into correct state */
   onDocumentReady(function () {
+    startWorking()
     putDocumentToState(vd);
     updateTargetImage();
-
+    updateRescoreButton();
 
     $(window).bind('mousewheel DOMMouseScroll', function (event) {
       if (event.shiftKey) {

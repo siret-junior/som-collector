@@ -29,6 +29,7 @@ public:
 	static const std::string RESET;
 	static const std::string TEXT;
 	static const std::string GUESS;
+	static const std::string ISSUE;
 
 	static const std::string DISPLAY_SOM;
 	static const std::string DISPLAY_TOP;

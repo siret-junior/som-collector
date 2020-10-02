@@ -190,6 +190,7 @@ SomHunter::som_ready() const
 std::tuple<bool, bool, bool>
 SomHunter::submit_to_server(ImageId frame_id)
 {
+	std::lock_guard<std::mutex> guard(mutex);
 	std::string last_displ = FeedbackLogger::DISPLAY_TOP;
 	if (current_display_type == DisplayType::DSom)
 		last_displ = FeedbackLogger::DISPLAY_SOM;
@@ -209,6 +210,18 @@ SomHunter::submit_to_server(ImageId frame_id)
 	return { guess.frame_ID == targetFrame.frame_ID,
 		 guess.shot_ID == targetFrame.shot_ID,
 		 guess.video_ID == targetFrame.video_ID };
+}
+
+DisplayType
+SomHunter::get_available_display()
+{
+	if ((target_index % 2) == 1) {
+		debug("New avail display is TopN");
+		return DisplayType::DTopN;
+	} else {
+		debug("New avail display is SOM");
+		return DisplayType::DSom;
+	}
 }
 
 DisplayType
@@ -233,9 +246,9 @@ SomHunter::reset_search_session()
 	                     IMAGE_ID_ERR_VAL);
 
 	reset_scores();
-	
+
 	shown_images.clear();
-	
+
 	// submitter.log_reset_search();
 	som_start();
 
@@ -244,12 +257,10 @@ SomHunter::reset_search_session()
 		--target_index;
 	targetId = targets[target_index];
 	targetFrame = frames.get_frame(targetId);
-	debug("New target id = " << targetId << ", target index = " << target_index);
+	debug("New target id = " << targetId
+	                         << ", target index = " << target_index);
 
-	if ((target_index % 2) == 1)
-		return DisplayType::DTopN;
-
-	return DisplayType::DSom;
+	return get_available_display();
 }
 
 void
@@ -541,4 +552,24 @@ SomHunter::reset_scores()
 	last_text_query = "";
 
 	scores.reset();
+}
+
+void
+SomHunter::report_issue()
+{
+	std::lock_guard<std::mutex> guard(mutex);
+	std::string last_displ = FeedbackLogger::DISPLAY_TOP;
+	if (current_display_type == DisplayType::DSom)
+		last_displ = FeedbackLogger::DISPLAY_SOM;
+
+	flogger.log_feedback(FeedbackLogger::ISSUE,
+	                     last_displ,
+	                     last_text_query,
+	                     targetId,
+	                     shown_images,
+	                     likes,
+	                     *features,
+	                     scores,
+	                     frames,
+	                     IMAGE_ID_ERR_VAL);
 }

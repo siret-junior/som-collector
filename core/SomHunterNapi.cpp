@@ -35,16 +35,18 @@ SomHunterNapi::Init(Napi::Env env, Napi::Object exports)
 	  env,
 	  "SomHunterNapi",
 	  { InstanceMethod("getDisplay", &SomHunterNapi::get_display),
-	  	InstanceMethod("getTarget", &SomHunterNapi::get_target_image),
+	    InstanceMethod("getTarget", &SomHunterNapi::get_target_image),
 	    InstanceMethod("addLikes", &SomHunterNapi::add_likes),
 	    InstanceMethod("rescore", &SomHunterNapi::rescore),
 	    InstanceMethod("resetAll", &SomHunterNapi::reset_all),
+	    InstanceMethod("getAvailableDisplay",
+	                   &SomHunterNapi::get_available_display),
 	    InstanceMethod("removeLikes", &SomHunterNapi::remove_likes),
 	    InstanceMethod("autocompleteKeywords",
 	                   &SomHunterNapi::autocomplete_keywords),
 	    InstanceMethod("isSomReady", &SomHunterNapi::is_som_ready),
-	    InstanceMethod("submitToServer",
-	                   &SomHunterNapi::submit_to_server) });
+	    InstanceMethod("submitToServer", &SomHunterNapi::submit_to_server),
+	    InstanceMethod("reportIssue", &SomHunterNapi::report_issue) });
 
 	constructor = Napi::Persistent(func);
 	constructor.SuppressDestruct();
@@ -255,7 +257,6 @@ SomHunterNapi::get_display(const Napi::CallbackInfo &info)
 	return Napi::Object(env, result);
 }
 
-
 Napi::Value
 SomHunterNapi::get_target_image(const Napi::CallbackInfo &info)
 {
@@ -280,16 +281,17 @@ SomHunterNapi::get_target_image(const Napi::CallbackInfo &info)
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
-	
+
 	napi_value result_dict;
 	napi_create_object(env, &result_dict);
 
 	{
 		napi_value key;
 		napi_create_string_utf8(
-			env, "targetPath", NAPI_AUTO_LENGTH, &key);
+		  env, "targetPath", NAPI_AUTO_LENGTH, &key);
 		napi_value value;
-		napi_create_string_utf8(env, target->filename.c_str(), NAPI_AUTO_LENGTH, &value);
+		napi_create_string_utf8(
+		  env, target->filename.c_str(), NAPI_AUTO_LENGTH, &value);
 
 		napi_set_property(env, result_dict, key, value);
 	}
@@ -365,6 +367,41 @@ SomHunterNapi::rescore(const Napi::CallbackInfo &info)
 }
 
 Napi::Value
+SomHunterNapi::get_available_display(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+	Napi::HandleScope scope(env);
+
+	// Process arguments
+	int length = info.Length();
+	if (length != 1) {
+		Napi::TypeError::New(env,
+		                     "Wrong number of parameters "
+		                     "(SomHunterNapi::get_available_display)")
+		  .ThrowAsJavaScriptException();
+	}
+
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
+	DisplayType disp = DisplayType::DNull;
+	try {
+		debug("API: CALL \n\t get_available_display()");
+
+		disp = somhunter->get(usr)->get_available_display();
+
+	} catch (const std::exception &e) {
+		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+	}
+
+	napi_value result;
+	if (disp == DisplayType::DSom)
+		napi_create_string_utf8(env, "som", 3, &result);
+	else
+		napi_create_string_utf8(env, "topn", 4, &result);
+
+	return Napi::Object(env, result);
+}
+
+Napi::Value
 SomHunterNapi::reset_all(const Napi::CallbackInfo &info)
 {
 	Napi::Env env = info.Env();
@@ -395,7 +432,7 @@ SomHunterNapi::reset_all(const Napi::CallbackInfo &info)
 		napi_create_string_utf8(env, "som", 3, &result);
 	else
 		napi_create_string_utf8(env, "topn", 4, &result);
-	
+
 	return Napi::Object(env, result);
 }
 
@@ -618,4 +655,25 @@ SomHunterNapi::submit_to_server(const Napi::CallbackInfo &info)
 	}
 
 	return Napi::Object(env, result_arr);
+}
+
+Napi::Value
+SomHunterNapi::report_issue(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+	Napi::HandleScope scope(env);
+
+	// Process arguments
+	int length = info.Length();
+
+	if (length != 1) {
+		Napi::TypeError::New(env, "Wrong number of parameters")
+		  .ThrowAsJavaScriptException();
+	}
+
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
+
+	somhunter->get(usr)->report_issue();
+
+	return Napi::Object{};
 }

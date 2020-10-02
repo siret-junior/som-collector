@@ -37,9 +37,9 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       <div class="small-6 cell">
         <a class="button block-btn new-seach-btn" onclick="resetSearchSession()">New search</a>
       </div>
-      <!--<div class="small-6 cell">
+      <div class="small-6 cell">
         <a class="button block-btn help-btn" data-open="modalHelp">Help</a>
-      </div>-->
+      </div>
     
     </div>
 
@@ -68,11 +68,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         <%- include autocomplete_logic.ejs %>
 
         <div class="autocomplete-input-cont small-12 cell">
-          <a id="rescore-som-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowSom()">Rescore to SOM</a>
-        </div>
-
-        <div class="autocomplete-input-cont small-12 cell">
-          <a id="rescore-topn-btn" class="button block-btn rescore-btn" onclick="rescore();showTopDisplay()">Rescore to top N</a>
+          <a id="rescore-som-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowSom()">Next display (SOM)</a>
+          <a id="rescore-topn-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowTop()">Next display (Top N)</a>
         </div>
       </div>
     </form>
@@ -87,7 +84,10 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       <!-- Target -->
       <div class="screen-btns grid-x align-left"> 
 
-        TARGET IMG
+        <span class="target-image-label">
+          Target image:
+        </span>
+
         <img 
           class="" 
           id="target_img"
@@ -96,14 +96,12 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
       </div>
 
-      <!-- Tips -->
-      <div class="screen-btns grid-x align-left"> 
+    </div>
+    
+    <br/>
 
-        <ul class="tips-list">
-          <li>SHIFT + Mouse Wheel for <span>TEMPORAL CONETXT</span></li>
-        </ul>
-        
-      </div>
+    <div class="grid-container screen-btns grid-x align-left"> 
+        <a id="rescore-topn-btn" class="button block-btn" onclick="reportIssue()">Issue</a>
     </div>
   </section>
     
@@ -146,7 +144,28 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
   <h1>Help</h1>
   <p>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. In in imperdiet enim, eget egestas enim. Aliquam nec ornare ipsum. Nullam ullamcorper dapibus dictum. Nulla semper dapibus eleifend. Sed id nibh vel sapien lobortis commodo a nec orci. Curabitur elit ex, sagittis a aliquet sed, tempus vitae augue. Pellentesque tincidunt, leo non facilisis euismod, diam arcu ultrices turpis, at ultricies arcu tortor quis sem. Nam rutrum convallis malesuada. 
+    Váším úkolem je nalézt hledaný obrázek, který se nachází na levé straně pod popiskem "Target Image". 
+    <br/>
+    <br/>
+    Vlevo nahore se nachazi zelene tlacitko "new search", ktery se zacne nove hledani.
+    <br/>
+    <br/>
+    Nejprve zadáte textový dotaz, kterým popíšete hledaný obrázek. Dbejte na to, aby všechny klíčová slova byly vybrány z vyskakovací nabídky.
+    <br/>
+    Následně pokračujte kliknutím na tlačítko "Next display". 
+    <br/>
+    <br/>
+    Ve zbytku obrazovky se nachazí displej ze kterého se vybírají relevantní obrázky kliknutím levým tlačítkém myši. 
+    <br/>
+    Po dokončení výběru podobných obrázků klikněte na tlačítko "Next display"
+    <br/>
+    <br/>
+    Pokud si myslíte, že jste nalezli hledaný obrázek nebo obrázek z hledaného videa/scény, tak klikněte na tlačítko "S" (submit), které vám zobrazí při najetí myši nad obrázek. 
+    <br/>
+    Poté se vám zobrazí informace, zda tento obrázek byl přesně ten hledaný, nebo alespoň je z hledané scény nebo videa.
+    <br/>
+    <br/>
+    Pokud si myslíte, že aktuálně zobrazený displej je z nějakého ohledu "špatný", klikněte na tlačítko "Issue".
   </p>
 
 </div>

@@ -66,7 +66,7 @@ exports.getTopScreen = function (req, res) {
   const sess = req.session;
 
   global.logger.log("info", req.query)
-  let type = 'topn'
+  let type = "topn";
   if (req.query && req.query.type)
     type = req.query.type;
 
@@ -139,6 +139,16 @@ exports.submitFrame = function (req, res) {
   // -------------------------------
 
   res.status(200).jsonp({correct: sub});
+};
+
+exports.reportIssue = function (req, res) {
+
+  // -------------------------------
+  // Call the core
+  global.core.reportIssue(req.session.user);
+  // -------------------------------
+
+  res.status(200).jsonp({});
 };
 
 exports.getAutocompleteResults = function (req, res) {

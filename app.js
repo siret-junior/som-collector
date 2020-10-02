@@ -189,6 +189,7 @@ app.get("/get_top_screen", endpoints.getTopScreen);
 app.get("/get_som_screen", endpoints.getSomScreen);
 app.get("/get_target", endpoints.getTarget);
 app.post("/submit_frame", endpoints.submitFrame);
+app.post("/report_issue", endpoints.reportIssue);
 app.post("/reset_search_session", endpoints.resetSearchSession);
 
 app.post("/rescore", endpoints.rescore);

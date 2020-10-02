@@ -52,7 +52,7 @@ router.get("/", function (req, res, next) {
   global.logger.log("debug", "Route: " + routeSettings.slug);
 
   const sess = req.session;
-
+  
   // Main request cycle
   preProcessReq(req, viewData);
   processReq(req, viewData);
@@ -61,12 +61,14 @@ router.get("/", function (req, res, next) {
   let frames = [];
   // -------------------------------
   // Call the core
-  const displayFrames = global.core.getDisplay(req.session.user, global.cfg.framesPathPrefix, "topn", 0);
+  const avail_disp = global.core.getAvailableDisplay(req.session.user);
+  const displayFrames = global.core.getDisplay(req.session.user, global.cfg.framesPathPrefix, avail_disp, 0);
   frames = displayFrames.frames;
   // -------------------------------
 
-  SessionState.switchScreenTo(sess.state, "topn", frames, 0);
+  SessionState.switchScreenTo(sess.state, avail_disp, frames, 0);
   viewData.somhunter = SessionState.getSomhunterUiState(sess.state);
+  viewData.somhunter.display_available = avail_disp;
 
   // Resolve and render dedicated template
   res.render(routeSettings.slug, viewData);

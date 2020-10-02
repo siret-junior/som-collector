@@ -154,8 +154,14 @@ public:
 	/** Resets current search context and starts new search */
 	DisplayType reset_search_session();
 
+	/** Returns the only available display type */
+	DisplayType get_available_display();
+
 	/** Returns pointer to target frame */
 	VideoFramePointer get_target_image();
+
+	/** This display sucks... */
+	void report_issue();
 
 private:
 	/**

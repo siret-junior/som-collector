@@ -46,9 +46,13 @@ private:
 
 	Napi::Value reset_all(const Napi::CallbackInfo &info);
 
+	Napi::Value get_available_display(const Napi::CallbackInfo &info);
+
 	Napi::Value autocomplete_keywords(const Napi::CallbackInfo &info);
 
 	Napi::Value is_som_ready(const Napi::CallbackInfo &info);
 
 	Napi::Value submit_to_server(const Napi::CallbackInfo &info);
+
+	Napi::Value report_issue(const Napi::CallbackInfo &info);
 };
