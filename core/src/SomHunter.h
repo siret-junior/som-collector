@@ -123,6 +123,8 @@ public:
 		debug("New target id = " << targetId);
 	}
 
+	inline const std::string & get_last_text_query() { return last_text_query; }
+
 	/** Returns display of desired type
 	 *
 	 *	Some diplays may even support paging (e.g. top_n) or

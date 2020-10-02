@@ -55,4 +55,6 @@ private:
 	Napi::Value submit_to_server(const Napi::CallbackInfo &info);
 
 	Napi::Value report_issue(const Napi::CallbackInfo &info);
+
+	Napi::Value get_last_text_query(const Napi::CallbackInfo &info);
 };

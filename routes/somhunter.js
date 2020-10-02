@@ -62,6 +62,7 @@ router.get("/", function (req, res, next) {
   // -------------------------------
   // Call the core
   const avail_disp = global.core.getAvailableDisplay(req.session.user);
+  const lquery = global.core.getLastTextQuery(req.session.user);
   const displayFrames = global.core.getDisplay(req.session.user, global.cfg.framesPathPrefix, avail_disp, 0);
   frames = displayFrames.frames;
   // -------------------------------
@@ -69,6 +70,7 @@ router.get("/", function (req, res, next) {
   SessionState.switchScreenTo(sess.state, avail_disp, frames, 0);
   viewData.somhunter = SessionState.getSomhunterUiState(sess.state);
   viewData.somhunter.display_available = avail_disp;
+  viewData.somhunter.textQueries.q0 = {value: lquery};
 
   // Resolve and render dedicated template
   res.render(routeSettings.slug, viewData);

@@ -46,6 +46,7 @@ SomHunterNapi::Init(Napi::Env env, Napi::Object exports)
 	                   &SomHunterNapi::autocomplete_keywords),
 	    InstanceMethod("isSomReady", &SomHunterNapi::is_som_ready),
 	    InstanceMethod("submitToServer", &SomHunterNapi::submit_to_server),
+	    InstanceMethod("getLastTextQuery", &SomHunterNapi::get_last_text_query),
 	    InstanceMethod("reportIssue", &SomHunterNapi::report_issue) });
 
 	constructor = Napi::Persistent(func);
@@ -610,6 +611,38 @@ SomHunterNapi::is_som_ready(const Napi::CallbackInfo &info)
 
 	napi_value result;
 	napi_get_boolean(env, is_ready, &result);
+
+	return Napi::Object(env, result);
+}
+
+Napi::Value
+SomHunterNapi::get_last_text_query(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+	Napi::HandleScope scope(env);
+
+	// Process arguments
+	int length = info.Length();
+	if (length != 1) {
+		Napi::TypeError::New(env,
+		                     "Wrong number of parameters "
+		                     "(SomHunterNapi::get_last_text_query)")
+		  .ThrowAsJavaScriptException();
+	}
+
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
+
+	napi_value result;
+	try {
+
+		auto lquery = somhunter->get(usr)->get_last_text_query();
+		napi_create_string_utf8(
+				env, lquery.c_str(), NAPI_AUTO_LENGTH, &result);
+
+	} catch (const std::exception &e) {
+		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+	}
+
 
 	return Napi::Object(env, result);
 }
