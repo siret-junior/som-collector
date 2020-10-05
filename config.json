@@ -44,8 +44,8 @@
   "kws_file": "data/v3c1_w2vv/word2idx.txt",
 
   "display_page_size": 64,
-  "topn_frames_per_video": 6,
-  "topn_frames_per_shot": 2,
+  "topn_frames_per_video": 0,
+  "topn_frames_per_shot": 0,
 
   "feedback_log_dir": "feedback_log/",
   "target_list_file": "targets.txt"
