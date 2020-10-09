@@ -208,7 +208,7 @@ SomHunter::submit_to_server(ImageId frame_id)
 	                     frame_id);
 	auto guess = frames.get_frame(frame_id);
 	return { guess.frame_ID == targetFrame.frame_ID,
-		 guess.shot_ID == targetFrame.shot_ID,
+		 guess.video_ID == targetFrame.video_ID && guess.shot_ID == targetFrame.shot_ID,
 		 guess.video_ID == targetFrame.video_ID };
 }
 

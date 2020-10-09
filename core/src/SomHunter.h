@@ -39,6 +39,8 @@
 #include "RelevanceScores.h"
 #include "Submitter.h"
 
+#define PREPARE_IMAGE_ID 285240
+
 class SomHunter
 {
 	// *** LOADED DATASET ***
@@ -110,11 +112,11 @@ public:
 			throw std::runtime_error("missing image list");
 		}
 		{ 
-			targets.push_back(136);
+			targets.push_back(PREPARE_IMAGE_ID);
 			for (std::string s; getline(in, s);) {
 				targets.push_back(std::stoi(s));
 			}
-			targets.push_back(136);
+			targets.push_back(PREPARE_IMAGE_ID);
 		}
 
 		targetId = targets[target_index];

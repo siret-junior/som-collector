@@ -132,20 +132,20 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
   function rescoreAndShowSom() {
     if (startWorking()) {
-      rescore();
-
       const elem = document.getElementById("frameGrid");
       elem.classList.remove("som-grid");
       elem.innerHTML = "";
       forceSOMDone = false;
-      setTimeout(forceShowSomDisplay, 2500);
+      rescore(forceShowSomDisplay);
     }
   }
 
   function rescoreAndShowTop() {
     if (startWorking()) {
-      rescore();
-      showTopDisplay();
+      const elem = document.getElementById("frameGrid");
+      elem.classList.remove("som-grid");
+      elem.innerHTML = "";
+      rescore(showTopDisplay);
     }
   }
 
@@ -284,7 +284,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       });
   }
 
-  function rescore() {
+  function rescore(callback) {
 
     // Get current queries
     const q0 = document.getElementById("textQueryInput0").value;
@@ -317,7 +317,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         // Now request new display
         //showTopDisplay();
 
-        //showGlobalMessage(`Rescored.`, "", 2000,"s");      
+        //showGlobalMessage(`Rescored.`, "", 2000,"s"); 
+        callback();     
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
