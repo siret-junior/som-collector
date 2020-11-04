@@ -93,7 +93,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         // Get updated view data
         viewData = data.viewData;
         putDocumentToState(viewData);
-        
+
         endWorking();
       })
       .catch((e) => {
@@ -318,7 +318,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         //showTopDisplay();
 
         //showGlobalMessage(`Rescored.`, "", 2000,"s"); 
-        callback();     
+        callback();
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
@@ -384,6 +384,48 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       });
   }
 
+  const hideSubmitWindow = 3000;
+  var subWindowTick = 0;
+  //function showSubmitWindow(messagePrimary, messageSecondary, time, type = "i") {
+  function showSubmitWindow(image, shot, video) {
+    subWindowTick++;
+    $cont = $("#submitCont");
+
+    $primary = $($cont.children(".primary")[0]);
+
+    var ihtml = "Correct video: " + (video ? "✓" : "✗") +
+      "<br/>Correct shot: " + (shot ? "✓" : "✗") +
+      "<br/>Correct image: " + (image ? "✓" : "✗");
+
+    if (image) {
+      ihtml += '<br/><div class="small-6 cell"><a class="button block-btn new-seach-btn" onclick="closeSubmitWindow();resetSearchSession()">New search</a></div>'
+    } else {
+      ihtml += '<div id="submit-progress">  <div id="submit-bar"></div> </div>'
+    }
+
+    $primary.html(ihtml);
+    $cont.css('display', 'block');
+
+    // Progress bar
+    $bar = $("#submit-bar");
+    $bar.removeClass();
+    $bar.addClass("submit-bar-complete");
+
+    if (!image) {
+      setTimeout(closeSubmitWindow, hideSubmitWindow, subWindowTick);
+    }
+  }
+
+  function closeSubmitWindow(tick) {
+    if (tick == undefined || subWindowTick == tick) {
+      console.log("Closing submit window");
+      $cont = $("#submitCont");
+      $primary = $($cont.children(".primary")[0]);
+      $primary.html("");
+      $cont.css('display', 'none');
+    }
+  }
+
   function submitImage(frameId) {
     if (startWorking()) {
       // Request input data
@@ -408,9 +450,9 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           if (data.error) {
             throw Error(data.error.message);
           }
- 
+
           endWorking();
-          showGlobalMessage("Frame correct: " + data.correct[0] + ", shot correct: " + data.correct[1] + ", video correct: " + data.correct[2], "", 5000, "s");
+          showSubmitWindow(data.correct[0], data.correct[1], data.correct[2]);
         })
         .catch((e) => {
           console.log("Error: " + JSON.stringify(e.message));
@@ -612,7 +654,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       ${likedStr}" 
       onclick="${actionStr}" 
       data-frame-id="${id}"
-      style="background-image: url('${src}')"
+      style="background-image: url('${src}'); background-size: 100% 100%;"
     >
       <div class="just-clicker">
         <a 
@@ -728,6 +770,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       }
     });
 
+
+    document.getElementById("modalAc").style.display = 'block';
   });
 
 </script>

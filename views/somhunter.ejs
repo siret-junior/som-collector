@@ -24,151 +24,186 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 <section class="ranker-grid-section grid-container">
   <div class="grid-x grid-x align-center">
 
-<!-- ===================================== -->
-<!-- Left sidebar: Query builder -->
-<!-- ===================================== -->
-<div class="ranker-left-sidebar small-3 cell">
+    <!-- ===================================== -->
+    <!-- Left sidebar: Query builder -->
+    <!-- ===================================== -->
+    <div class="ranker-left-sidebar small-3 cell">
 
-  <section class="autocomplete-section ranker-single">
-    <form autocomplete="off" class="autocomplete-form grid-container">
+      <section class="autocomplete-section ranker-single">
+        <form autocomplete="off" class="autocomplete-form grid-container">
 
-    <div class="grid-x align-left grid-padding-x"> 
-      <!-- Top buttons -->
-      <div class="small-6 cell">
-        <a class="button block-btn new-seach-btn" onclick="resetSearchSession()">New search</a>
-      </div>
-      <div class="small-6 cell">
-        <a class="button block-btn help-btn" data-open="modalHelp">Help</a>
-      </div>
-    
-    </div>
+          <div class="grid-x align-left grid-padding-x">
+            <!-- Top buttons -->
+            <div class="small-6 cell">
+              <a class="button block-btn new-seach-btn" onclick="resetSearchSession()">New search</a>
+            </div>
+            <div class="small-6 cell">
+              <a class="button block-btn help-btn" data-open="modalHelp">Help</a>
+            </div>
 
-    <!-- ---------------------------------- -->
-    <!-- Query inputs -->
-    <!-- ---------------------------------- -->    
-      <div class="grid-x grid-padding-x align-left"> 
-
-        <!-- Text queries -->
-        <div class="autocomplete-input-cont small-12 cell">
-          <h2>Text queries</h2>
-          <!-- Autocomplete text input -->  
-          <div class="input-cont">
-            <input type="text" id="textQueryInput0" class="text-query-input" data-id="2" 
-              tabindex="1" name="textQuery[]" value="<%= somhunter.textQueries.q0.value %>">
           </div>
-          <!--<p class="inter-query-text"> ... AND THEN ...</p>-->
-          <div class="input-cont">
-            <input type="hidden" id="textQueryInput1" class="text-query-input left-marged" data-id="1" 
-              tabindex="2" name="textQuery[]" value="<%= somhunter.textQueries.q1.value %>">
+
+          <!-- ---------------------------------- -->
+          <!-- Query inputs -->
+          <!-- ---------------------------------- -->
+          <div class="grid-x grid-padding-x align-left">
+
+            <!-- Text queries -->
+            <div class="autocomplete-input-cont small-12 cell">
+              <h2>Text queries</h2>
+              <!-- Autocomplete text input -->
+              <div class="input-cont">
+                <input type="text" id="textQueryInput0" class="text-query-input" data-id="2" tabindex="1"
+                  name="textQuery[]" value="<%= somhunter.textQueries.q0.value %>">
+              </div>
+              <!--<p class="inter-query-text"> ... AND THEN ...</p>-->
+              <div class="input-cont">
+                <input type="hidden" id="textQueryInput1" class="text-query-input left-marged" data-id="1" tabindex="2"
+                  name="textQuery[]" value="<%= somhunter.textQueries.q1.value %>">
+              </div>
+
+            </div>
+
+            <!-- Autocomplete logic -->
+            <%- include autocomplete_logic.ejs %>
+
+            <div class="autocomplete-input-cont small-12 cell">
+              <a id="rescore-som-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowSom()">Next display
+                (SOM)</a>
+              <a id="rescore-topn-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowTop()">Next display
+                (Top N)</a>
+            </div>
           </div>
-                    
+        </form>
+      </section>
+
+      <!-- ---------------------------------- -->
+      <!-- Control buttons-->
+      <!-- ---------------------------------- -->
+      <section class="section-control-buttons ">
+        <div class="grid-container">
+
+          <!-- Target -->
+          <div class="screen-btns grid-x align-left">
+
+            <span class="target-image-label">
+              Target image:
+            </span>
+
+            <img class="" id="target_img" style="height: 30vh;width: 30vw;"> </img>
+
+          </div>
+
         </div>
 
-        <!-- Autocomplete logic -->
-        <%- include autocomplete_logic.ejs %>
+        <br />
 
-        <div class="autocomplete-input-cont small-12 cell">
-          <a id="rescore-som-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowSom()">Next display (SOM)</a>
-          <a id="rescore-topn-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowTop()">Next display (Top N)</a>
+        <div class="grid-container screen-btns grid-x align-left">
+          <a id="rescore-topn-btn" class="button block-btn" onclick="reportIssue()">Issue</a>
         </div>
-      </div>
-    </form>
-  </section>
+      </section>
 
-  <!-- ---------------------------------- -->
-  <!-- Control buttons-->
-  <!-- ---------------------------------- -->
-  <section class="section-control-buttons ">
-    <div class="grid-container"> 
-      
-      <!-- Target -->
-      <div class="screen-btns grid-x align-left"> 
-
-        <span class="target-image-label">
-          Target image:
-        </span>
-
-        <img 
-          class="" 
-          id="target_img"
-          style="height: 30vh;width: 30vw;"
-        > </img>
-
-      </div>
 
     </div>
-    
-    <br/>
 
-    <div class="grid-container screen-btns grid-x align-left"> 
-        <a id="rescore-topn-btn" class="button block-btn" onclick="reportIssue()">Issue</a>
+    <!-- ===================================== -->
+    <!-- MAIN BODY: Image grid-->
+    <!-- ===================================== -->
+    <div id="frameGridWrapper"
+      class="ranker-right-sidebar image-grid-section image-browser-main-tiles small-9 cell grid-container">
+
+      <ul id="frameGrid" class="<%= somhunter.screen.type %>-grid frame-grid grid-x grid-x"></ul>
+
     </div>
-  </section>
-    
-
-  </div>
-
-<!-- ===================================== -->
-<!-- MAIN BODY: Image grid-->
-<!-- ===================================== -->
-<div id="frameGridWrapper" class="ranker-right-sidebar image-grid-section image-browser-main-tiles small-9 cell grid-container">
-
-  <ul id="frameGrid" class="<%= somhunter.screen.type %>-grid frame-grid grid-x grid-x"></ul>
-
-</div>
 
 
 
-<!-- ===================================== -->
-<!-- VIDEO DETAIL MODAL -->
-<!-- ===================================== -->
-<div class="large reveal grid-x" id="modalDetail" data-reveal data-src="999" data-overlay="false">
-  
-  <button class="close-button" data-close aria-label="Close modal" type="button">
-    <span aria-hidden="true">&times;</span>
-  </button>
+    <!-- ===================================== -->
+    <!-- VIDEO DETAIL MODAL -->
+    <!-- ===================================== -->
+    <div class="large reveal grid-x" id="modalDetail" data-reveal data-src="999" data-overlay="false">
 
-  <ul id="videoDetailFrameGrid" class="detail-grid frame-grid grid-x grid-x">
-  </ul>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
 
-</div>
+      <ul id="videoDetailFrameGrid" class="detail-grid frame-grid grid-x grid-x">
+      </ul>
 
-<!-- ===================================== -->
-<!-- HELP MODAL -->
-<!-- ===================================== -->
-<div class="large reveal grid-x" id="modalHelp" data-reveal data-src="999" data-overlay="false">
-  
-  <button class="close-button" data-close aria-label="Close modal" type="button">
-    <span aria-hidden="true">&times;</span>
-  </button>
+    </div>
 
-  <h1>Help</h1>
-  <p>
-    Váším úkolem je nalézt hledaný obrázek, který se nachází na levé straně pod popiskem "Target Image". 
-    <br/>
-    <br/>
-    Vlevo nahore se nachazi zelene tlacitko "new search", ktery se zacne nove hledani.
-    <br/>
-    <br/>
-    Nejprve zadáte textový dotaz, kterým popíšete hledaný obrázek. Dbejte na to, aby všechny klíčová slova byly vybrány z vyskakovací nabídky.
-    <br/>
-    Následně pokračujte kliknutím na tlačítko "Next display". 
-    <br/>
-    <br/>
-    Ve zbytku obrazovky se nachazí displej ze kterého se vybírají relevantní obrázky kliknutím levým tlačítkém myši. 
-    <br/>
-    Po dokončení výběru podobných obrázků klikněte na tlačítko "Next display"
-    <br/>
-    <br/>
-    Pokud si myslíte, že jste nalezli hledaný obrázek nebo obrázek z hledaného videa/scény, tak klikněte na tlačítko "S" (submit), které vám zobrazí při najetí myši nad obrázek. 
-    <br/>
-    Poté se vám zobrazí informace, zda tento obrázek byl přesně ten hledaný, nebo alespoň je z hledané scény nebo videa.
-    <br/>
-    <br/>
-    Pokud si myslíte, že aktuálně zobrazený displej je z nějakého ohledu "špatný", klikněte na tlačítko "Issue".
-  </p>
+    <!-- ===================================== -->
+    <!-- HELP MODAL -->
+    <!-- ===================================== -->
+    <div class="large reveal grid-x" id="modalHelp" data-reveal data-src="999" data-overlay="false">
 
-</div>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <h1>Help</h1>
+      <p>
+        Váším úkolem je nalézt hledaný obrázek, který se nachází na levé straně pod popiskem "Target Image".
+        <br />
+        <br />
+        Vlevo nahore se nachazi zelene tlacitko "new search", ktery se zacne nove hledani.
+        <br />
+        <br />
+        Nejprve zadáte textový dotaz, kterým popíšete hledaný obrázek. Dbejte na to, aby všechny klíčová slova byly
+        vybrány z vyskakovací nabídky.
+        <br />
+        Následně pokračujte kliknutím na tlačítko "Next display".
+        <br />
+        <br />
+        Ve zbytku obrazovky se nachazí displej ze kterého se vybírají relevantní obrázky kliknutím levým tlačítkém myši.
+        <br />
+        Po dokončení výběru podobných obrázků klikněte na tlačítko "Next display"
+        <br />
+        <br />
+        Pokud si myslíte, že jste nalezli hledaný obrázek nebo obrázek z hledaného videa/scény, tak klikněte na tlačítko
+        "S" (submit), které vám zobrazí při najetí myši nad obrázek.
+        <br />
+        Poté se vám zobrazí informace, zda tento obrázek byl přesně ten hledaný, nebo alespoň je z hledané scény nebo
+        videa.
+        <br />
+        <br />
+        Pokud si myslíte, že aktuálně zobrazený displej je z nějakého ohledu "špatný", klikněte na tlačítko "Issue".
+      </p>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- ACCEPT DATA GATHERING -->
+    <!-- ===================================== -->
+    <div class="large reveal grid-x warning-window" id="modalAc" data-reveal data-src="999" data-overlay="false">
+
+      <h1>Upozornění</h1>
+      <p>
+        Spuštěním a používáním této webové aplikace souhlasím se sběrem interakcí při hledaní obrázku (tj. dotazy a
+        klikání myši) pro vědecke účely.
+      </p>
+
+      <button class="close-button" data-close aria-label="Close modal" type="button" style="bottom: 0.5rem; top: auto;"
+        onclick="document.getElementById('modalAc').style.display = 'none'">
+        <span aria-hidden="true">Souhlasím</span>
+      </button>
+    </div>
+
+
+    <!-- ----------------------------------- -->
+    <!-- SUBMIT SECTION -->
+    <!-- ----------------------------------- -->
+    <div div class="large reveal grid-x submit-modal" id="submitCont" data-reveal data-src="998" data-overlay="false">
+
+      <button class="close-button" data-close aria-label="Close modal" type="button" onclick="closeSubmitWindow()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <p class="primary" style="text-align: center;"></p>
+
+    </div>
+</section>
+
 </section>
 
 <!-- Include footer -->
