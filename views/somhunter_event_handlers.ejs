@@ -170,7 +170,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
         // Get updated view data
         viewData = data.viewData;
-        putDocumentToState(viewData); 
+        putDetailModelToState(viewData);
+        //putDocumentToState(viewData); 
 
       })
       .catch((e) => {
@@ -182,6 +183,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           "e"
         );
       });
+      $('#modalDetail').foundation('open');
   }
 
   function forceShowSomDisplay() {
@@ -268,21 +270,42 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       }
     } 
     */
-    let elemHtml = "";
+    
+    $(grid).empty();
+
     // Iterate over all the frames
     for (let i = 0; i < frames.length; ++i) {
-
       let likedStr = "";
-      let actionStr = `like(this, ${frames[i].id})`;
       if (frames[i].liked) {
         likedStr = "liked";
-        actionStr = `like(this, ${frames[i].id})`;
       }
 
-      elemHtml += getThumbPrototype(likedStr, actionStr, frames[i].id, frames[i].src);
-    }
+      let e = getThumbPrototype(likedStr,
+        frames[i].id,
+        frames[i].src,
+        frames[i].vId);
+        
+        
+        let span0 = document.createElement("span");
+        {
+          span0.className = "frame-id";
+          span0.innerText = frames[i].vidId;
+        }
+        let li = document.createElement("li");
+        {
+          li.className = `frame-in-grid small-6 medium-4 large-2 cell ${frames[i].likedStr}`;
+          li.style.backgroundImage = `url('${frames[i].src}')`;
+          li.dataset.frameId = frames[i].id;
+        }
+        li.appendChild(span0);
 
-    grid.innerHTML = elemHtml;
+        let frag = document.createDocumentFragment();
+        frag.appendChild(li);
+
+        
+      grid.appendChild(li);
+
+      }
   }
 
   function showVideoDetail(id, thisFilename) {

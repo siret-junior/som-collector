@@ -49,9 +49,7 @@ exports.getPreviousScreen = function (req, res) {
   // Call the core
   frameData = global.core.getDisplay(req.session.user, global.cfg.framesPathPrefix, "previous", null, frameId);
   // -------------------------------
-  frameData.somhunter = SessionState.getSomhunterUiState(sess.state);
-  SessionState.switchScreenTo(sess.state, frameData.somhunter.screen.type, frameData.frames, frameData.somhunter.frameContext.frameId);
-
+  
   res.status(200).jsonp({ viewData: frameData });
 }
 exports.getSomScreen = function (req, res) {
