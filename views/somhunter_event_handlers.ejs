@@ -163,13 +163,14 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       })
       .then((data) => {
         // Handle error
+
         if (data.error) {
           throw Error(data.error.message);
         }
 
         // Get updated view data
         viewData = data.viewData;
-        putDocumentToState(viewData);
+        putDocumentToState(viewData); 
 
       })
       .catch((e) => {

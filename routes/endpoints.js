@@ -42,15 +42,17 @@ exports.getFrameDetailData = function (req, res) {
 exports.getPreviousScreen = function (req, res) {
   const sess = req.session;
 
-  const frameId = Number(req.query.frameId);
+  const frameId = 0;
 
   let frameData = {};
   // -------------------------------
   // Call the core
-  frameData = global.core.getPreviousDisplay(req.session.user, global.cfg.framesPathPrefix, "previous", null, frameId);
+  frameData = global.core.getDisplay(req.session.user, global.cfg.framesPathPrefix, "previous", null, frameId);
   // -------------------------------
+  frameData.somhunter = SessionState.getSomhunterUiState(sess.state);
+  SessionState.switchScreenTo(sess.state, frameData.somhunter.screen.type, frameData.frames, frameData.somhunter.frameContext.frameId);
 
-  res.status(200).jsonp(frameData);
+  res.status(200).jsonp({ viewData: frameData });
 }
 exports.getSomScreen = function (req, res) {
   const sess = req.session;
