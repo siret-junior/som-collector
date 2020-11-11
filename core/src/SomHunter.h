@@ -30,6 +30,8 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
+#include <iostream>
 
 #include "AsyncSom.h"
 #include "DatasetFeatures.h"
@@ -185,6 +187,8 @@ private:
 	void som_start();
 
 	FramePointerRange get_random_display();
+
+	FramePointerRange get_previous_display();
 
 	FramePointerRange get_topn_display(PageId page);
 

@@ -62,7 +62,8 @@ enum class DisplayType
 	DTopNContext,
 	DRand,
 	DVideoDetail,
-	NumItems
+	NumItems,
+	PreviousDisplay
 };
 
 /*!

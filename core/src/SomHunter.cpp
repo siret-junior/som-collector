@@ -51,6 +51,8 @@ SomHunter::get_display(DisplayType d_type, ImageId selected_image, PageId page)
 
 		case DisplayType::DTopKNN:
 			return get_topKNN_display(selected_image, page);
+		case DisplayType::PreviousDisplay:
+			return get_previous_display();
 
 		default:
 			warn("Unsupported display requested.");
@@ -321,6 +323,113 @@ SomHunter::get_random_display()
 
 	return FramePointerRange(current_display);
 }
+
+std::vector<std::string> split (std::string s, std::string delimiter) {
+    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+    std::string token;
+    std::vector<std::string> res;
+
+    while ((pos_end = s.find (delimiter, pos_start)) != std::string::npos) {
+        token = s.substr (pos_start, pos_end - pos_start);
+        pos_start = pos_end + delim_len;
+        res.push_back (token);
+    }
+
+    res.push_back (s.substr (pos_start));
+    return res;
+}
+
+FramePointerRange
+SomHunter::get_previous_display()
+{
+	// Get log path 
+	auto path = std::filesystem::current_path() / ("feedback_log\\test");
+
+	// find newest log file
+	std::vector<std::string> files;
+    std::string ext(".csv");
+    for (auto &p : std::filesystem::recursive_directory_iterator(path))
+    {
+        if (p.path().extension() == ext)
+            files.emplace_back( p.path().stem().string());
+    }
+	std::sort(files.begin(), files.end());
+
+	std::string line;
+	int index = files.size() - 1;
+	bool success_load = false;
+	while(!success_load){
+
+		// TODO: what if there are no more files? 
+		std::string newest_file_name = files[index];
+
+		// Read file
+		auto filepath = path / (newest_file_name + ".csv");
+
+		
+		std::ifstream newest_file (filepath);
+
+		if (newest_file.is_open())
+		{
+			getline(newest_file, line);
+			// TODO: if log is valid then... else second newest file, etc.
+			newest_file.close();
+			success_load = true;
+		}
+		else {
+			success_load = false;
+			index--;
+		}
+	}
+	
+	std::vector<ImageId> ids;
+	auto split_line = split(line, ",");
+	for(std::vector<int>::size_type i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
+		int index = 14 + (i * 6);
+		int value;
+		sscanf((split_line[index]).c_str(), "%d", &value);
+		ids.emplace_back((ImageId)value);
+	}
+
+	// 15-th column (14th index)
+	// + 3 if selected
+	// + 6 positions is next id
+
+	// Log
+	// submitter.log_show_random_display(frames, ids);
+	// Update context
+	shown_images.clear();
+	for (auto id : ids)
+		shown_images.push_back(id);
+	current_display = frames.ids_to_video_frame(ids);
+	current_display_type = DisplayType::PreviousDisplay;
+	// std::vector<VideoFramePointer> new_current_display;
+	// for(std::vector<int>::size_type i = 0; i < current_display.size(); i++) {
+	// 	int index = 14 + ((i * 6) + 3);
+	// 	
+	// 	std::string name = current_display[i]->filename;
+	// 	VideoFrame v = VideoFrame(
+	// 								std::move(name),
+	// 								current_display[i]->video_ID,
+	// 								current_display[i]->shot_ID,
+	// 								current_display[i]->frame_number,
+	// 								current_display[i]->frame_ID);
+	// 	if (split_line[index] == "true")
+	// 	{
+	// 		v.liked = true;
+	// 	}
+	// 	else
+	// 	{
+	// 		v.liked = false;
+	// 	}
+	// 	VideoFramePointer p = &v;
+	// 	new_current_display.emplace_back(p);
+	// 	
+	// }
+
+	return FramePointerRange(current_display);
+}
+
 
 FramePointerRange
 SomHunter::get_topn_display(PageId page)

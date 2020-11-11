@@ -115,6 +115,8 @@ SomHunterNapi::get_display(const Napi::CallbackInfo &info)
 	} else if (display_string == "som") {
 		disp_type = DisplayType::DSom;
 
+	} else if (display_string == "previous") {
+		disp_type = DisplayType::PreviousDisplay;
 	} else if (display_string == "detail") {
 		disp_type = DisplayType::DVideoDetail;
 		selected_image = info[4].As<Napi::Number>().Uint32Value();
