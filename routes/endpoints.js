@@ -39,6 +39,19 @@ exports.getFrameDetailData = function (req, res) {
   res.status(200).jsonp(frameData);
 };
 
+exports.getPreviousScreen = function (req, res) {
+  const sess = req.session;
+
+  const frameId = Number(req.query.frameId);
+
+  let frameData = {};
+  // -------------------------------
+  // Call the core
+  frameData = global.core.getPreviousDisplay(req.session.user, global.cfg.framesPathPrefix, "previous", null, frameId);
+  // -------------------------------
+
+  res.status(200).jsonp(frameData);
+}
 exports.getSomScreen = function (req, res) {
   const sess = req.session;
 

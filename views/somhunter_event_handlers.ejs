@@ -148,6 +148,40 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       rescore(showTopDisplay);
     }
   }
+  function showPreviousDisplay() {
+    pageId = 0;
+    // Make the request
+    fetch("/get_previous_screen", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        if (!res.ok) { throw Error(res.statusText); }
+        return res.json()
+      })
+      .then((data) => {
+        // Handle error
+        if (data.error) {
+          throw Error(data.error.message);
+        }
+
+        // Get updated view data
+        viewData = data.viewData;
+        putDocumentToState(viewData);
+
+      })
+      .catch((e) => {
+        console.log("Error: " + JSON.stringify(e.message));
+        showGlobalMessage(
+          "Request failed!",
+          JSON.stringify(e.message),
+          5000,
+          "e"
+        );
+      });
+  }
 
   function forceShowSomDisplay() {
     if (forceSOMDone)

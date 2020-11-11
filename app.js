@@ -188,6 +188,7 @@ app.get("/get_autocomplete_results", endpoints.getAutocompleteResults);
 app.get("/get_top_screen", endpoints.getTopScreen);
 app.get("/get_som_screen", endpoints.getSomScreen);
 app.get("/get_target", endpoints.getTarget);
+app.get("/get_previous_screen", endpoints.getPreviousScreen);
 app.post("/submit_frame", endpoints.submitFrame);
 app.post("/report_issue", endpoints.reportIssue);
 app.post("/reset_search_session", endpoints.resetSearchSession);
