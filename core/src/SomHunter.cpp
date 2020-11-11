@@ -343,7 +343,9 @@ FramePointerRange
 SomHunter::get_previous_display()
 {
 	// Get log path 
-	auto path = std::filesystem::current_path() / ("feedback_log\\test");
+	auto path = std::filesystem::current_path() / ("feedback_log") / user;
+	std::cout << "USER: " << user << std::endl; 
+		std::cout << "PATH: " << path << std::endl; 
 
 	// find newest log file
 	std::vector<std::string> files;

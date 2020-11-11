@@ -58,6 +58,7 @@ class SomHunter
 
 	// Used keyword query
 	std::string last_text_query;
+	std::string user;
 
 	// Relevance feedback context
 	std::set<ImageId> likes;
@@ -107,6 +108,7 @@ public:
 	  , target_index(0)
 	  , targetId(0)
 	  , targetFrame(frames.get_frame(0))
+	  , user(usr)
 	{
 		std::ifstream in(config.target_list_file);
 		if (!in.good()) {
