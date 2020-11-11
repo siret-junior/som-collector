@@ -342,39 +342,43 @@ std::vector<std::string> split (std::string s, std::string delimiter) {
 FramePointerRange
 SomHunter::get_previous_display()
 {
-	// Get log path 
-	auto path = std::filesystem::current_path() / ("feedback_log") / user;
-	std::cout << "USER: " << user << std::endl; 
-		std::cout << "PATH: " << path << std::endl; 
+	
+	//	Get log path 
+	auto path_to_logs = std::filesystem::current_path() / ("feedback_log") / user;
+	
 
-	// find newest log file
-	std::vector<std::string> files;
+	//	list all files in log directory and sort them(from oldest to newest)
+	std::vector<std::string> log_file_names;
     std::string ext(".csv");
     for (auto &p : std::filesystem::recursive_directory_iterator(path))
     {
         if (p.path().extension() == ext)
-            files.emplace_back( p.path().stem().string());
+            log_file_names.emplace_back( p.path().stem().string());
     }
-	std::sort(files.begin(), files.end());
+	std::sort(log_file_names.begin(), log_file_names.end());
 
-	std::string line;
-	int index = files.size() - 1;
+
+
+	//	try to load the newest log file and read data
+	std::string csv_data;
+	int index = log_file_names.size() - 1;
 	bool success_load = false;
 	while(!success_load){
 
-		// TODO: what if there are no more files? 
-		std::string newest_file_name = files[index];
+		if(index <= -1)
+		{
+			// TODO: what if there are no more files? 
+		}
+		
+		std::string newest_file_name = log_file_names[index];
 
 		// Read file
-		auto filepath = path / (newest_file_name + ".csv");
-
-		
+		auto filepath = path_to_logs / (newest_file_name + ".csv");
 		std::ifstream newest_file (filepath);
 
 		if (newest_file.is_open())
 		{
-			getline(newest_file, line);
-			// TODO: if log is valid then... else second newest file, etc.
+			getline(newest_file, csv_data);
 			newest_file.close();
 			success_load = true;
 		}
@@ -384,12 +388,14 @@ SomHunter::get_previous_display()
 		}
 	}
 	
+
+	//	extract IDs from csv data
 	std::vector<ImageId> ids;
-	auto split_line = split(line, ",");
+	auto splitted_csv_data = split(csv_data, ",");
 	for(std::vector<int>::size_type i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
 		int index = 14 + (i * 6);
 		int value;
-		sscanf((split_line[index]).c_str(), "%d", &value);
+		sscanf((splitted_csv_data[index]).c_str(), "%d", &value);
 		ids.emplace_back((ImageId)value);
 	}
 
@@ -397,14 +403,25 @@ SomHunter::get_previous_display()
 	// + 3 if selected
 	// + 6 positions is next id
 
-	// Log
-	// submitter.log_show_random_display(frames, ids);
-	// Update context
-	shown_images.clear();
-	for (auto id : ids)
-		shown_images.push_back(id);
+
+	//	extract Video ID and frame number from frame IDs
 	current_display = frames.ids_to_video_frame(ids);
 	current_display_type = DisplayType::PreviousDisplay;
+
+	//	TODO: Append likes to current_display (default is 'false')
+	//		  You can access likes/dislikes form csv_data like this:
+	//
+	//	for(std::vector<int>::size_type i = 0; i < current_display.size(); i++) {
+	// 		int index = 14 + ((i * 6) + 3);
+	//		splitted_csv_data[index] == "true"
+	//	}
+	//	I think that everything else in frontend is ready to display likes, so if you 
+	//	succeed then it should work, let me know otherwise
+
+
+
+	//	This is my UGLY attempt, and it didn't work, so.. :D	Don't get inspired!
+	
 	// std::vector<VideoFramePointer> new_current_display;
 	// for(std::vector<int>::size_type i = 0; i < current_display.size(); i++) {
 	// 	int index = 14 + ((i * 6) + 3);
@@ -416,7 +433,7 @@ SomHunter::get_previous_display()
 	// 								current_display[i]->shot_ID,
 	// 								current_display[i]->frame_number,
 	// 								current_display[i]->frame_ID);
-	// 	if (split_line[index] == "true")
+	// 	if (splitted_csv_data[index] == "true")
 	// 	{
 	// 		v.liked = true;
 	// 	}
@@ -428,6 +445,7 @@ SomHunter::get_previous_display()
 	// 	new_current_display.emplace_back(p);
 	// 	
 	// }
+	//	return FramePointerRange(new_current_display)
 
 	return FramePointerRange(current_display);
 }
