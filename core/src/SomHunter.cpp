@@ -350,7 +350,7 @@ SomHunter::get_previous_display()
 	//	list all files in log directory and sort them(from oldest to newest)
 	std::vector<std::string> log_file_names;
     std::string ext(".csv");
-    for (auto &p : std::filesystem::recursive_directory_iterator(path))
+    for (auto &p : std::filesystem::recursive_directory_iterator(path_to_logs))
     {
         if (p.path().extension() == ext)
             log_file_names.emplace_back( p.path().stem().string());
