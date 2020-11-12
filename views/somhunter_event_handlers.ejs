@@ -171,7 +171,6 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         // Get updated view data
         viewData = data.viewData;
         putDetailModelToState(viewData);
-        //putDocumentToState(viewData); 
 
       })
       .catch((e) => {
@@ -293,7 +292,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         }
         let li = document.createElement("li");
         {
-          li.className = `frame-in-grid small-6 medium-4 large-2 cell ${frames[i].likedStr}`;
+          li.className = `frame-in-grid small-6 medium-4 large-2 cell ${likedStr}`;
           li.style.backgroundImage = `url('${frames[i].src}')`;
           li.dataset.frameId = frames[i].id;
         }
