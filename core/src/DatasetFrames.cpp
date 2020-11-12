@@ -149,16 +149,13 @@ VideoFrame
 DatasetFrames::parse_video_filename(std::string &&filename)
 {
 	// Extract string representing video ID
-	std::string_view
-	videoIdString(filename.data() + offs.vid_ID_off, offs.vid_ID_len);
+	std::string_view videoIdString(filename.data() + offs.vid_ID_off, offs.vid_ID_len);
 
 	// Extract string representing shot ID
-	std::string_view
-	shotIdString(filename.data() + offs.shot_ID_off, offs.shot_ID_len);
+	std::string_view shotIdString(filename.data() + offs.shot_ID_off, offs.shot_ID_len);
 
 	// Extract string representing frame number
-	std::string_view
-	frameNumberString(filename.data() + offs.frame_num_off,
+	std::string_view frameNumberString(filename.data() + offs.frame_num_off,
 	                  offs.frame_num_len);
 
 	return VideoFrame(std::move(filename),
@@ -180,6 +177,23 @@ DatasetFrames::ids_to_video_frame(const std::vector<ImageId> &ids) const
 		}
 
 		res.push_back(&get_frame(i));
+	}
+
+	return res;
+}
+
+std::vector<VideoFrame>
+DatasetFrames::ids_copy_video_frame(const std::vector<ImageId> &ids) const
+{
+	std::vector<VideoFrame> res;
+	res.reserve(ids.size());
+	for (ImageId i : ids) {
+		if (i == IMAGE_ID_ERR_VAL) {
+			// TODO res.push_back(nullptr);
+			continue;
+		}
+
+		res.push_back(VideoFrame(get_frame(i)));
 	}
 
 	return res;

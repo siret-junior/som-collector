@@ -210,7 +210,8 @@ SomHunter::submit_to_server(ImageId frame_id)
 	                     frame_id);
 	auto guess = frames.get_frame(frame_id);
 	return { guess.frame_ID == targetFrame.frame_ID,
-		 guess.video_ID == targetFrame.video_ID && guess.shot_ID == targetFrame.shot_ID,
+		 guess.video_ID == targetFrame.video_ID &&
+		   guess.shot_ID == targetFrame.shot_ID,
 		 guess.video_ID == targetFrame.video_ID };
 }
 
@@ -324,132 +325,105 @@ SomHunter::get_random_display()
 	return FramePointerRange(current_display);
 }
 
-std::vector<std::string> split (std::string s, std::string delimiter) {
-    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
-    std::string token;
-    std::vector<std::string> res;
+std::vector<std::string>
+split(std::string s, std::string delimiter)
+{
+	size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+	std::string token;
+	std::vector<std::string> res;
 
-    while ((pos_end = s.find (delimiter, pos_start)) != std::string::npos) {
-        token = s.substr (pos_start, pos_end - pos_start);
-        pos_start = pos_end + delim_len;
-        res.push_back (token);
-    }
+	while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos) {
+		token = s.substr(pos_start, pos_end - pos_start);
+		pos_start = pos_end + delim_len;
+		res.push_back(token);
+	}
 
-    res.push_back (s.substr (pos_start));
-    return res;
+	res.push_back(s.substr(pos_start));
+	return res;
 }
 
 FramePointerRange
 SomHunter::get_previous_display()
 {
-	
-	//	Get log path 
-	auto path_to_logs = std::filesystem::current_path() / ("feedback_log") / user;
-	
 
-	//	list all files in log directory and sort them(from oldest to newest)
+	//	Get log path
+	auto path_to_logs =
+	  std::filesystem::current_path() / ("feedback_log") / user;
+
+	//	list all files in log directory and sort them(from oldest to
+	// newest)
 	std::vector<std::string> log_file_names;
-    std::string ext(".csv");
-    for (auto &p : std::filesystem::recursive_directory_iterator(path_to_logs))
-    {
-        if (p.path().extension() == ext)
-            log_file_names.emplace_back( p.path().stem().string());
-    }
+	std::string ext(".csv");
+	for (auto &p :
+	     std::filesystem::recursive_directory_iterator(path_to_logs)) {
+		if (p.path().extension() == ext)
+			log_file_names.emplace_back(p.path().stem().string());
+	}
 	std::sort(log_file_names.begin(), log_file_names.end());
-
-
 
 	//	try to load the newest log file and read data
 	std::string csv_data;
 	int index = log_file_names.size() - 1;
-	bool success_load = false;
-	while(!success_load){
 
-		if(index <= -1)
-		{
-			// TODO: what if there are no more files? 
-		}
-		
+	// Find newest file
+	while (index > 0) {
+
 		std::string newest_file_name = log_file_names[index];
 
 		// Read file
 		auto filepath = path_to_logs / (newest_file_name + ".csv");
-		std::ifstream newest_file (filepath);
+		std::ifstream newest_file(filepath);
 
-		if (newest_file.is_open())
-		{
+		if (newest_file.is_open()) {
 			getline(newest_file, csv_data);
 			newest_file.close();
-			success_load = true;
+			break;
 		}
-		else {
-			success_load = false;
-			index--;
-		}
+
+		index--;
 	}
-	
+
+	// If there is no suitable, then return non-valid range
+	if (index <= -1) {
+		return FramePointerRange();
+	}
 
 	//	extract IDs from csv data
 	std::vector<ImageId> ids;
 	auto splitted_csv_data = split(csv_data, ",");
-	for(std::vector<int>::size_type i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
+	for (size_t i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
 		int index = 14 + (i * 6);
-		int value;
-		sscanf((splitted_csv_data[index]).c_str(), "%d", &value);
-		ids.emplace_back((ImageId)value);
+		ids.emplace_back((ImageId)std::stol(splitted_csv_data[index]));
 	}
 
 	// 15-th column (14th index)
 	// + 3 if selected
 	// + 6 positions is next id
 
+	// Create copy of last logged display frames
+	logged_display_frames = frames.ids_copy_video_frame(ids);
 
-	//	extract Video ID and frame number from frame IDs
-	current_display = frames.ids_to_video_frame(ids);
-	current_display_type = DisplayType::PreviousDisplay;
+	// Create FramePointerRange
+	logged_display.clear();
+	logged_display.reserve(ids.size());
+	for (size_t i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
+		if (ids[i] == IMAGE_ID_ERR_VAL) {
+			logged_display.push_back(nullptr);
+			continue;
+		}
 
-	//	TODO: Append likes to current_display (default is 'false')
-	//		  You can access likes/dislikes form csv_data like this:
-	//
-	//	for(std::vector<int>::size_type i = 0; i < current_display.size(); i++) {
-	// 		int index = 14 + ((i * 6) + 3);
-	//		splitted_csv_data[index] == "true"
-	//	}
-	//	I think that everything else in frontend is ready to display likes, so if you 
-	//	succeed then it should work, let me know otherwise
+		logged_display.push_back(&logged_display_frames[i]);
+	}
 
+	// Apply former likes
+	for (size_t i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
+		int index = 14 + (i * 6) + 3;
+		logged_display_frames[i].liked =
+		  splitted_csv_data[index] == "true";
+	}
 
-
-	//	This is my UGLY attempt, and it didn't work, so.. :D	Don't get inspired!
-	
-	// std::vector<VideoFramePointer> new_current_display;
-	// for(std::vector<int>::size_type i = 0; i < current_display.size(); i++) {
-	// 	int index = 14 + ((i * 6) + 3);
-	// 	
-	// 	std::string name = current_display[i]->filename;
-	// 	VideoFrame v = VideoFrame(
-	// 								std::move(name),
-	// 								current_display[i]->video_ID,
-	// 								current_display[i]->shot_ID,
-	// 								current_display[i]->frame_number,
-	// 								current_display[i]->frame_ID);
-	// 	if (splitted_csv_data[index] == "true")
-	// 	{
-	// 		v.liked = true;
-	// 	}
-	// 	else
-	// 	{
-	// 		v.liked = false;
-	// 	}
-	// 	VideoFramePointer p = &v;
-	// 	new_current_display.emplace_back(p);
-	// 	
-	// }
-	//	return FramePointerRange(new_current_display)
-
-	return FramePointerRange(current_display);
+	return FramePointerRange(logged_display);
 }
-
 
 FramePointerRange
 SomHunter::get_topn_display(PageId page)

@@ -37,6 +37,9 @@ using VideoFramePointer = const VideoFrame *;
 
 struct VideoFrame
 {
+	VideoFrame() = default;
+	VideoFrame(const VideoFrame &) = default;
+
 	inline VideoFrame(std::string &&filename,
 	                  VideoId video_ID,
 	                  ShotId shot_ID,
@@ -248,6 +251,9 @@ public:
 	  const std::vector<ImageId> &ids) const;
 	static std::vector<VideoFramePointer> range_to_video_frame(
 	  const FrameRange &ids);
+
+	std::vector<VideoFrame> DatasetFrames::ids_copy_video_frame(
+	  const std::vector<ImageId> &ids) const;
 
 private:
 	/**

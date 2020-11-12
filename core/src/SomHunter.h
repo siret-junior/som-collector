@@ -68,6 +68,10 @@ class SomHunter
 	std::vector<VideoFramePointer> current_display;
 	DisplayType current_display_type{ DisplayType::DNull };
 
+	// Previous logged display
+	std::vector<VideoFrame> logged_display_frames;
+	std::vector<VideoFramePointer> logged_display;
+
 	// asynchronous SOM worker
 	AsyncSom asyncSom;
 
