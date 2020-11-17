@@ -151,6 +151,11 @@ cursor: pointer;
 height: 16.66vh;
 }
 
+.previous-screen-frame {
+  font-size: small;
+  color: dodgerblue;
+}
+
 .just-clicker:after {
 content: "";
 background-image: url("../images/generic/icon_info.svg");

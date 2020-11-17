@@ -272,6 +272,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     */
     
     $(grid).empty();
+    $(targetGrid).empty();
 
     // Iterate over all the frames
     for (let i = 0; i < frames.length; ++i) {
@@ -291,14 +292,20 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           span0.className = "frame-id";
           span0.innerText = frames[i].vidId;
         }
+        let p1 = document.createElement("p");
+        {
+          p1.innerText = screenData.distances[i].distance;
+          p1.className = "previous-screen-frame";
+          
+        }
         let li = document.createElement("li");
         {
           li.className = `frame-in-grid small-6 medium-4 large-2 cell ${likedStr}`;
           li.style.backgroundImage = `url('${frames[i].src}')`;
           li.dataset.frameId = frames[i].id;
-          li.innerText = screenData.distances[i].distance;
         }
         li.appendChild(span0);
+        li.appendChild(p1);
 
         let frag = document.createDocumentFragment();
         frag.appendChild(li);
