@@ -435,6 +435,8 @@ SomHunter::get_previous_display()
 		distances.emplace_back(std::stof(splitted_csv_data[index]));
 	}
 
+	previousDisplay.distances = distances;
+
 	return previousDisplay;
 }
 
