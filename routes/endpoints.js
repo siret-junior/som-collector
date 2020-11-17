@@ -47,7 +47,7 @@ exports.getPreviousScreen = function (req, res) {
   let frameData = {};
   // -------------------------------
   // Call the core
-  frameData = global.core.getDisplay(req.session.user, global.cfg.framesPathPrefix, "previous", null, frameId);
+  frameData = global.core.getPreviousDisplay(req.session.user, global.cfg.framesPathPrefix, "previous", null, frameId);
   // -------------------------------
   
   res.status(200).jsonp({ viewData: frameData });

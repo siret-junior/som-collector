@@ -31,6 +31,7 @@
 #include "config_json.h"
 #include "utils.h"
 
+
 struct VideoFrame;
 
 using VideoFramePointer = const VideoFrame *;
@@ -64,6 +65,12 @@ struct VideoFrame
 /**
  * Represents CONTINOUS range of frames.
  */
+struct PreviousDisplay {
+	VideoFramePointer target;
+	std::vector<VideoFramePointer> display;
+	std::vector<float> distances;
+};
+
 struct FrameRange
 {
 	std::vector<VideoFrame>::iterator _begin;
@@ -102,7 +109,7 @@ struct FrameRange
 /**
  * Represents CONTINOUS range of const frame pointers.
  */
-class FramePointerRange
+class 	FramePointerRange
 {
 	std::vector<VideoFramePointer>::const_iterator _begin;
 	std::vector<VideoFramePointer>::const_iterator _end;
