@@ -123,13 +123,16 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
 
     <!-- ===================================== -->
-    <!-- VIDEO DETAIL MODAL -->
+    <!-- PREVIOUS SCREEN MODAL -->
     <!-- ===================================== -->
-    <div class="large reveal grid-x" id="modalDetail" data-reveal data-src="999" data-overlay="false">
+    <div class="large reveal grid-x" id="modalDetail" data-reveal data-src="999" data-overlay="false"
+     style="overflow-y: scroll; height: 85%;">
 
       <button class="close-button" data-close aria-label="Close modal" type="button">
         <span aria-hidden="true">&times;</span>
       </button>
+      <ul id="targetFrameGrid" class="grid-x grid-x">
+      </ul>
 
       <ul id="videoDetailFrameGrid" class="som-grid frame-grid grid-x grid-x">
       </ul>

@@ -36,6 +36,7 @@ SomHunterNapi::Init(Napi::Env env, Napi::Object exports)
 	  "SomHunterNapi",
 	  { InstanceMethod("getDisplay", &SomHunterNapi::get_display),
 	    InstanceMethod("getTarget", &SomHunterNapi::get_target_image),
+		InstanceMethod("getPreviousDisplay", &SomHunterNapi::get_previous_display),
 	    InstanceMethod("addLikes", &SomHunterNapi::add_likes),
 	    InstanceMethod("rescore", &SomHunterNapi::rescore),
 	    InstanceMethod("resetAll", &SomHunterNapi::reset_all),
@@ -84,6 +85,264 @@ SomHunterNapi::SomHunterNapi(const Napi::CallbackInfo &info)
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
 }
+Napi::Value
+SomHunterNapi::get_previous_display(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+	Napi::HandleScope scope(env);
+
+	// Process arguments
+	int length = info.Length();
+
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
+	std::string path_prefix{ info[1].As<Napi::String>().Utf8Value() };
+	
+	// Call native method
+	PreviousDisplay previous_display;
+	try {
+		debug("API: CALL get_previous_display");
+
+		auto hunter = somhunter->get(usr);
+		if (hunter == nullptr)
+			warn("Hunter not found for user " << usr << "!!!");
+
+		previous_display = hunter->get_previous_display();
+		  
+		debug("API: RETURN \n\t get_previous_display");
+	} catch (const std::exception &e) {
+		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+	}
+	napi_value result;
+	napi_create_object(env, &result);
+
+	
+	// Set "frames"
+	{
+		napi_value upperKey;
+		napi_create_string_utf8(
+		  env, "frames", NAPI_AUTO_LENGTH, &upperKey);
+
+		// Create array
+		napi_value arr;
+		napi_create_array(env, &arr);
+		{
+			size_t i{ 0_z };
+			for (auto it{ previous_display.display.begin() };
+			     it != previous_display.display.end();
+			     ++it) {
+
+				napi_value obj;
+				napi_create_object(env, &obj);
+				{
+					ImageId ID{ IMAGE_ID_ERR_VAL };
+					bool is_liked{ false };
+					std::string filename{};
+
+					if ((*it) != nullptr) {
+						ID = (*it)->frame_ID;
+						is_liked = (*it)->liked;
+						filename =
+						  path_prefix + (*it)->filename;
+					}
+
+					{
+						napi_value key;
+						napi_create_string_utf8(
+						  env,
+						  "id",
+						  NAPI_AUTO_LENGTH,
+						  &key);
+
+						napi_value value;
+						if (ID == IMAGE_ID_ERR_VAL) {
+							napi_get_null(env,
+							              &value);
+						} else {
+							napi_create_uint32(
+							  env,
+							  uint32_t(ID),
+							  &value);
+						}
+
+						napi_set_property(
+						  env, obj, key, value);
+					}
+
+					{
+						napi_value key;
+						napi_create_string_utf8(
+						  env,
+						  "liked",
+						  NAPI_AUTO_LENGTH,
+						  &key);
+
+						napi_value value;
+						napi_get_boolean(
+						  env, is_liked, &value);
+
+						napi_set_property(
+						  env, obj, key, value);
+					}
+
+					{
+						napi_value key;
+						napi_create_string_utf8(
+						  env,
+						  "src",
+						  NAPI_AUTO_LENGTH,
+						  &key);
+
+						napi_value value;
+						napi_create_string_utf8(
+						  env,
+						  filename.c_str(),
+						  NAPI_AUTO_LENGTH,
+						  &value);
+
+						napi_set_property(
+						  env, obj, key, value);
+					}
+				}
+				napi_set_element(env, arr, i, obj);
+
+				++i;
+			}
+		}
+
+		napi_set_property(env, result, upperKey, arr);
+
+
+		napi_value upperKey1;
+		napi_create_string_utf8(
+		  env, "distances", NAPI_AUTO_LENGTH, &upperKey1);
+
+		// Create array
+		napi_value arr1;
+		napi_create_array(env, &arr1);
+		{
+			size_t i{ 0_z };
+			for (auto it{ previous_display.distances.begin() };
+			     it != previous_display.distances.end();
+			     ++it) {
+
+				napi_value obj;
+				napi_create_object(env, &obj);
+				{
+					float distance{ 0.0 };
+
+					
+					distance = (*it);
+					
+
+					{
+						napi_value key;
+						napi_create_string_utf8(
+						  env,
+						  "distance",
+						  NAPI_AUTO_LENGTH,
+						  &key);
+
+						napi_value value;
+						
+						napi_create_double(
+							env,
+							distance,
+							&value);
+						
+
+						napi_set_property(
+						  env, obj, key, value);
+					}
+
+				}
+				napi_set_element(env, arr1, i, obj);
+
+				++i;
+			}
+		}
+		napi_set_property(env, result, upperKey1, arr1);
+
+		napi_value key;
+		napi_create_string_utf8(
+		  env, "targetPath", NAPI_AUTO_LENGTH, &key);
+		napi_value obj;
+		napi_create_object(env, &obj);
+		{
+			ImageId ID{ IMAGE_ID_ERR_VAL };
+			bool is_liked{ false };
+			std::string filename{};
+
+			if (previous_display.target != nullptr) {
+				ID = previous_display.target->frame_ID;
+				is_liked = previous_display.target->liked;
+				filename =
+					path_prefix + previous_display.target->filename;
+			}
+
+			{
+				napi_value key;
+				napi_create_string_utf8(
+					env,
+					"id",
+					NAPI_AUTO_LENGTH,
+					&key);
+
+				napi_value value;
+				if (ID == IMAGE_ID_ERR_VAL) {
+					napi_get_null(env,
+									&value);
+				} else {
+					napi_create_uint32(
+						env,
+						uint32_t(ID),
+						&value);
+				}
+
+				napi_set_property(
+					env, obj, key, value);
+			}
+
+			{
+				napi_value key;
+				napi_create_string_utf8(
+					env,
+					"liked",
+					NAPI_AUTO_LENGTH,
+					&key);
+
+				napi_value value;
+				napi_get_boolean(
+					env, is_liked, &value);
+
+				napi_set_property(
+					env, obj, key, value);
+			}
+
+			{
+				napi_value key;
+				napi_create_string_utf8(
+					env,
+					"src",
+					NAPI_AUTO_LENGTH,
+					&key);
+
+				napi_value value;
+				napi_create_string_utf8(
+					env,
+					filename.c_str(),
+					NAPI_AUTO_LENGTH,
+					&value);
+
+				napi_set_property(
+					env, obj, key, value);
+			}
+		}
+
+		napi_set_property(env, result, key, obj);
+	}
+	return Napi::Object(env, result);
+
+}
 
 Napi::Value
 SomHunterNapi::get_display(const Napi::CallbackInfo &info)
@@ -114,9 +373,6 @@ SomHunterNapi::get_display(const Napi::CallbackInfo &info)
 
 	} else if (display_string == "som") {
 		disp_type = DisplayType::DSom;
-
-	} else if (display_string == "previous") {
-		disp_type = DisplayType::PreviousDisplay;
 	} else if (display_string == "detail") {
 		disp_type = DisplayType::DVideoDetail;
 		selected_image = info[4].As<Napi::Number>().Uint32Value();

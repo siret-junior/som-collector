@@ -259,6 +259,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
   function putDetailModelToState(screenData) {
     const grid = document.getElementById("videoDetailFrameGrid");
+    const targetGrid = document.getElementById("targetFrameGrid");
     const frames = screenData.frames;
 
     /*
@@ -295,6 +296,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           li.className = `frame-in-grid small-6 medium-4 large-2 cell ${likedStr}`;
           li.style.backgroundImage = `url('${frames[i].src}')`;
           li.dataset.frameId = frames[i].id;
+          li.innerText = screenData.distances[i].distance;
         }
         li.appendChild(span0);
 
@@ -305,6 +307,15 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       grid.appendChild(li);
 
       }
+      
+      let target_li = document.createElement("li");
+      {
+        target_li.className = `frame-in-grid small-6 medium-4 large-2 cell`;
+        target_li.style.backgroundImage = `url('${screenData.targetPath.src}')`;
+        target_li.dataset.frameId = screenData.targetPath.id;
+      }
+      targetGrid.appendChild(target_li)
+
   }
 
   function showVideoDetail(id, thisFilename) {

@@ -83,6 +83,8 @@ class SomHunter
 	ImageId targetId;
 	VideoFrame targetFrame;
 	FeedbackLogger flogger;
+	PreviousDisplay previousDisplay;
+	std::vector<float> distances;
 
 	//std::mt19937 gen;
 	//std::uniform_int_distribution<int> distrib;
@@ -144,6 +146,8 @@ public:
 	                              ImageId selected_image = 0,
 	                              PageId page = 0);
 
+	PreviousDisplay get_previous_display();
+
 	void add_likes(const std::vector<ImageId> &likes);
 
 	void remove_likes(const std::vector<ImageId> &likes);
@@ -193,8 +197,6 @@ private:
 	void som_start();
 
 	FramePointerRange get_random_display();
-
-	FramePointerRange get_previous_display();
 
 	FramePointerRange get_topn_display(PageId page);
 

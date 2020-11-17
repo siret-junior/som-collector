@@ -51,8 +51,6 @@ SomHunter::get_display(DisplayType d_type, ImageId selected_image, PageId page)
 
 		case DisplayType::DTopKNN:
 			return get_topKNN_display(selected_image, page);
-		case DisplayType::PreviousDisplay:
-			return get_previous_display();
 
 		default:
 			warn("Unsupported display requested.");
@@ -342,7 +340,7 @@ split(std::string s, std::string delimiter)
 	return res;
 }
 
-FramePointerRange
+PreviousDisplay
 SomHunter::get_previous_display()
 {
 
@@ -385,7 +383,7 @@ SomHunter::get_previous_display()
 
 	// If there is no suitable, then return non-valid range
 	if (index <= -1) {
-		return FramePointerRange();
+		return PreviousDisplay();
 	}
 
 	//	extract IDs from csv data
@@ -421,8 +419,23 @@ SomHunter::get_previous_display()
 		logged_display_frames[i].liked =
 		  splitted_csv_data[index] == "true";
 	}
+	
+	previousDisplay.display = logged_display;
 
-	return FramePointerRange(logged_display);
+	// get target image
+	// 8th column is target image id (7th index)
+	size_t target_image_id_index = 7;
+	ImageId loggedTargetID = (ImageId)std::stol(splitted_csv_data[target_image_id_index]);
+	previousDisplay.target = &frames.get_frame(loggedTargetID);
+
+	// get cosine distance
+	// extract IDs from csv data
+	for (size_t i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
+		int index = 14 + (i * 6) + 4;
+		distances.emplace_back(std::stof(splitted_csv_data[index]));
+	}
+
+	return previousDisplay;
 }
 
 FramePointerRange
