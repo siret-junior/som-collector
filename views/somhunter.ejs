@@ -73,8 +73,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
               <a id="rescore-topn-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowTop()">Next display
                 (Top N)</a>
             </div>
-            <div>
-              <a id="show-previous-btn" class="button block-btn rescore-btn" onclick="showPreviousDisplay()" data-open="modalDetail">
+            <div id="prev-disp-div" class="small-12 cell" style="display: none;">
+              <a id="show-previous-btn" class="button block-btn prev-disp-btn" onclick="showPreviousDisplay()" data-open="modalDetail">
                 Show previous display</a>
             </div>
           </div>
@@ -126,15 +126,15 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     <!-- PREVIOUS SCREEN MODAL -->
     <!-- ===================================== -->
     <div class="large reveal grid-x" id="modalDetail" data-reveal data-src="999" data-overlay="false"
-     style="overflow-y: scroll; height: 85%;">
+     style="height: 90%; width: 80% !important; max-width: 90%;">
 
       <button class="close-button" data-close aria-label="Close modal" type="button">
         <span aria-hidden="true">&times;</span>
       </button>
-      <ul id="targetFrameGrid" class="grid-x grid-x">
+      <ul id="targetFrameGrid" class="grid-x grid-x" style="height: 15%">
       </ul>
 
-      <ul id="videoDetailFrameGrid" class="som-grid frame-grid grid-x grid-x">
+      <ul id="videoDetailFrameGrid" class="som-grid frame-grid grid-x grid-x" style="height: 84%">
       </ul>
 
     </div>

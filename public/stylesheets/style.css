@@ -343,6 +343,13 @@ text-transform: uppercase;
 font-size: 1.8rem;
 }
 
+.prev-disp-btn {
+background-color: #fb0b02;
+padding: 1.6rem 0.6rem;
+text-transform: uppercase;
+font-size: 1.8rem;
+}
+
 .block-btn.active {
 background-color: #07a82f;
 }
@@ -531,6 +538,18 @@ display: block;
   margin-left: -20vw !important; 
   margin-top: -15vh !important;
   background-color: #ccffcc;
+}
+
+.previous-modal {
+  height: 90vh; 
+  width: 90vw !important; 
+  max-width: 90vw;
+  position: absolute !important; 
+  left: 5vw !important; 
+  top: 5vh !important; 
+  margin-left: -5vw !important; 
+  margin-top: -5vh !important;
+  background-color: #fafffa;
 }
 
 #submit-progress {
