@@ -153,8 +153,9 @@ height: 16.66vh;
 
 .previous-screen-frame {
   font-size: small;
-  color: dodgerblue;
+  color: white;
   position: absolute;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 
 .just-clicker:after {

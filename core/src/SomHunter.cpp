@@ -401,26 +401,22 @@ SomHunter::get_previous_display()
 	// Create copy of last logged display frames
 	logged_display_frames = frames.ids_copy_video_frame(ids);
 
-	// Create FramePointerRange
-	logged_display.clear();
-	logged_display.reserve(ids.size());
+	// Create and fill PreviousDisplay
+	PreviousDisplay previousDisplay;
+	previousDisplay.display.reserve(ids.size());
 	for (size_t i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
-		if (ids[i] == IMAGE_ID_ERR_VAL) {
-			logged_display.push_back(nullptr);
-			continue;
-		}
-
-		logged_display.push_back(&logged_display_frames[i]);
+		if (ids[i] == IMAGE_ID_ERR_VAL) 
+			previousDisplay.display.push_back(nullptr);
+		else
+			previousDisplay.display.push_back(&logged_display_frames[i]);
 	}
 
 	// Apply former likes
 	for (size_t i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
-		int index = 14 + (i * 6) + 3;
+		size_t index = 14 + (i * 6) + 3;
 		logged_display_frames[i].liked =
 		  splitted_csv_data[index] == "true";
 	}
-	
-	previousDisplay.display = logged_display;
 
 	// get target image
 	// 8th column is target image id (7th index)
@@ -430,12 +426,11 @@ SomHunter::get_previous_display()
 
 	// get cosine distance
 	// extract IDs from csv data
+	previousDisplay.distances.reserve(ids.size());
 	for (size_t i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
-		int index = 14 + (i * 6) + 4;
-		distances.emplace_back(std::stof(splitted_csv_data[index]));
+		size_t index = 14 + (i * 6) + 4;
+		previousDisplay.distances.emplace_back(std::stof(splitted_csv_data[index]));
 	}
-
-	previousDisplay.distances = distances;
 
 	return previousDisplay;
 }

@@ -70,7 +70,6 @@ class SomHunter
 
 	// Previous logged display
 	std::vector<VideoFrame> logged_display_frames;
-	std::vector<VideoFramePointer> logged_display;
 
 	// asynchronous SOM worker
 	AsyncSom asyncSom;
@@ -83,8 +82,6 @@ class SomHunter
 	ImageId targetId;
 	VideoFrame targetFrame;
 	FeedbackLogger flogger;
-	PreviousDisplay previousDisplay;
-	std::vector<float> distances;
 
 	//std::mt19937 gen;
 	//std::uniform_int_distribution<int> distrib;
