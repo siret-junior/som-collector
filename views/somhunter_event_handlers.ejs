@@ -504,7 +504,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       level++;
       areStats = true;
       
-      const videoF = (100 * data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a,b)=> a + b) / (data.videoOn.length)).toFixed(2);
+      const videoF = (100 * data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a,b)=> a + b) / (data.videoOn.length - 2)).toFixed(2);
 
       $stats.css('display', 'block');
       $('#divVideosFound').html(videoF);
