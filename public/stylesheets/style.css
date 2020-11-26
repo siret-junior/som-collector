@@ -78,8 +78,8 @@ color: #fff;
 }
 
 .autocomplete-section {
-padding-top: 2rem;
-padding-bottom: 2rem;
+padding-top: 1rem;
+/*padding-bottom: 2rem;*/
 }
 
 .autocomplete-section h2 {
@@ -530,13 +530,13 @@ display: block;
 }
 
 .submit-modal {
-  height: 30vh; 
+  height: 36vh; 
   width: 40vw !important; 
   position: absolute !important; 
   left: 50% !important; 
   top: 50% !important; 
   margin-left: -20vw !important; 
-  margin-top: -15vh !important;
+  margin-top: -13vh !important;
   background-color: #ccffcc;
 }
 

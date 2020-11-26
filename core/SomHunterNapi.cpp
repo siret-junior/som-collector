@@ -982,7 +982,7 @@ SomHunterNapi::submit_to_server(const Napi::CallbackInfo &info)
 
 			napi_value key;
 			napi_create_string_utf8(
-			env, "video_on", NAPI_AUTO_LENGTH, &key);
+			env, "videoOn", NAPI_AUTO_LENGTH, &key);
 
 			napi_set_property(env, single_result_dict, key, arr);
 		}
@@ -1001,7 +1001,7 @@ SomHunterNapi::submit_to_server(const Napi::CallbackInfo &info)
 
 			napi_value key;
 			napi_create_string_utf8(
-			env, "shot_on", NAPI_AUTO_LENGTH, &key);
+			env, "shotOn", NAPI_AUTO_LENGTH, &key);
 
 			napi_set_property(env, single_result_dict, key, arr);
 		}
@@ -1020,7 +1020,7 @@ SomHunterNapi::submit_to_server(const Napi::CallbackInfo &info)
 
 			napi_value key;
 			napi_create_string_utf8(
-			env, "frame_on", NAPI_AUTO_LENGTH, &key);
+			env, "frameOn", NAPI_AUTO_LENGTH, &key);
 
 			napi_set_property(env, single_result_dict, key, arr);
 		}

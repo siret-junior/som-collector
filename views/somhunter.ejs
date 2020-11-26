@@ -35,7 +35,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           <div class="grid-x align-left grid-padding-x">
             <!-- Top buttons -->
             <div class="small-6 cell">
-              <a class="button block-btn new-seach-btn" onclick="resetSearchSession()">Vzdát se</a>
+              <a class="button block-btn new-seach-btn" onclick="resetSearchSession()">Nové hledání</a>
             </div>
             <div class="small-6 cell">
               <a class="button block-btn help-btn" data-open="modalHelp">Pomoc</a>
@@ -74,7 +74,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
                 (Top N)</a>
             </div>
             <div id="prev-disp-div" class="small-12 cell" style="display: none;">
-              <a id="show-previous-btn" class="button block-btn prev-disp-btn" onclick="showPreviousDisplay()" data-open="modalDetail">
+              <a id="show-previous-btn" class="button block-btn prev-disp-btn" onclick="showPreviousDisplay()"
+                data-open="modalDetail">
                 Zobrazit předchozí displej</a>
             </div>
           </div>
@@ -100,7 +101,15 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
         </div>
 
-        <br />
+        <div class="grid-container screen-btns grid-x align-left">
+          <h1 style="display: flex; justify-content: center;">Aktuální úroveň: <div id="panelLevel"></div>
+          </h1>
+        </div>
+        <div class="grid-container screen-btns grid-x align-left">
+          <h1 style="display: flex; justify-content: center;">Zkušenosti: <div id="panelExp"></div>/<div
+              id="panelNextExp"></div>
+          </h1>
+        </div>
 
         <div class="grid-container screen-btns grid-x align-left">
           <a id="rescore-topn-btn" class="button block-btn" onclick="reportIssue()">Špatný displej</a>
@@ -126,7 +135,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     <!-- PREVIOUS SCREEN MODAL -->
     <!-- ===================================== -->
     <div class="large reveal grid-x" id="modalDetail" data-reveal data-src="999" data-overlay="false"
-     style="height: 90%; width: 80% !important; max-width: 90%;">
+      style="height: 90%; width: 80% !important; max-width: 90%;">
 
       <button class="close-button" data-close aria-label="Close modal" type="button">
         <span aria-hidden="true">&times;</span>
@@ -162,7 +171,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         Následně pokračujte kliknutím na tlačítko "Next display".
         <br />
         <br />
-        Ve zbytku obrazovky se nachazí displej, ze kterého se vybírají relevantní obrázky kliknutím levým tlačítkém myši.
+        Ve zbytku obrazovky se nachazí displej, ze kterého se vybírají relevantní obrázky kliknutím levým tlačítkém
+        myši.
         <br />
         Po dokončení výběru podobných obrázků klikněte na tlačítko "Next display"
         <br />
@@ -174,8 +184,10 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         videa.
         <br />
         <br />
-        Na počátku se vám jako první zobrazí zelený Target Image, po němž následují dvě testovací kola. Po těchto dvou testovacích kolech
-        se v Target Image opět zobrazí zelený Target Image (stejný jako na počátku), po němž již následují kola 'naostro' (tj. ta, která budou
+        Na počátku se vám jako první zobrazí zelený Target Image, po němž následují dvě testovací kola. Po těchto dvou
+        testovacích kolech
+        se v Target Image opět zobrazí zelený Target Image (stejný jako na počátku), po němž již následují kola
+        'naostro' (tj. ta, která budou
         součástí sběru dat).
         <br />
         <br />
@@ -212,17 +224,27 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       </button>
 
       <p class="primary" style="text-align: center;">
-        <div style="display: flex; justify-content: center;">Správný obrázek: <div id="divCorrectFrame"></div></div>
-        <div style="display: flex; justify-content: center;">Správná scéna: <div id="divCorrectShot"></div></div>
-        <div style="display: flex; justify-content: center;">Správné video: <div id="divCorrectVideo"></div></div>
+      <div style="display: flex; justify-content: center;">Správný obrázek: <div id="divCorrectFrame"></div>
+      </div>
+      <div style="display: flex; justify-content: center;">Správná scéna: <div id="divCorrectShot"></div>
+      </div>
+      <div style="display: flex; justify-content: center;">Správné video: <div id="divCorrectVideo"></div>
+      </div>
       </p>
 
       <p>
-        <div id="divSubmitStats">
+      <div id="divSubmitStats" style="display: flex; justify-content: center;">
+        <H1 style="display: flex; justify-content: center;">Gratulujeme, postoupili jste do další urovně!</H1>
+        <div style="display: flex; justify-content: center;">Úspěšnost nalezení videí: <div id="divVideosFound"></div>% </div>
+        <div style="display: flex; justify-content: center;">Průměrný počet displejů před nalezením: <div id="divAvgDisp"></div>
         </div>
+        <div style="display: flex; justify-content: center;" id=divSubmitComment></div>
+      </div>
       </p>
 
-      <p><div id="divSubmitFooter"></div></p>
+      <p>
+      <div id="divSubmitFooter"></div>
+      </p>
 
     </div>
 </section>

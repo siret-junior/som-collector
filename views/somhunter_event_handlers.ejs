@@ -464,10 +464,18 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       });
   }
 
-  const hideSubmitWindow = 30000;
-  const statStep = 5;
+  const hideSubmitWindow = 3000;
+  const levelStep = 9;
   var subWindowTick = 0;
-  var subUntilStats = statStep;
+  var level = 1;
+  var experiences = 0;
+  var found = false;
+
+  function updateLevelView() {
+    $('#panelExp').html(experiences);
+    $('#panelLevel').html(level);
+    $('#panelNextExp').html(level * levelStep);
+  }
 
   function showSubmitWindow(data) {
     const frame = data.correctFrame;
@@ -475,6 +483,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     const video = data.correctVideo;
     const correctTick = '<div style="color: green;">✓</div>'
     const wrongTick = '<div style="color: red;">✗</div>'
+    var areStats = false;
     
     subWindowTick++;
     $cont = $("#submitCont");
@@ -484,15 +493,50 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     $("#divCorrectShot").html(shot ? correctTick : wrongTick);
     $("#divCorrectVideo").html(video ? correctTick : wrongTick);
 
-    
-    
+    // Update exps
+    experiences = data.points.reduce((a,b) => a + b);
+
+    // Update stats
+    $stats = $("#divSubmitStats");
+
+    // Update level
+    if (experiences >= (level * levelStep)) {
+      level++;
+      areStats = true;
+      
+      const videoF = (100 * data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a,b)=> a + b) / (data.videoOn.length)).toFixed(2);
+
+      $stats.css('display', 'block');
+      $('#divVideosFound').html(videoF);
+      $('#divAvgDisp').html((data.videoOn.map(e => e < 100 ? e : 0).reduce((a,b)=> a + b) / 
+                            data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a,b)=> a + b)).toFixed(2));
+
+
+      if (videoF > 80) {
+        $('#divSubmitComment').html('⭐WOW!⭐ Koukám, že tu máme hledače z první ligy!');
+      } else if (videoF > 60) {
+        $('#divSubmitComment').html('Vedeš si výborně! Ale je tu ještě prostor pro zlepšení. 🚀');
+      } else if (videoF > 40) {
+        $('#divSubmitComment').html('To není vůbec špatné. Ale vsadím se, že to zvládneš lépe.');
+      } else if (videoF > 20) {
+        $('#divSubmitComment').html('No, není to žádná sláva, ale ty se určitě zlepšíš!');
+      } else {
+        $('#divSubmitComment').html('Chce to ještě trochu cviku. Dobrá zpráva je, že můžeš už být jen lepší. 🙂');
+      }
+      
+    } else {
+      $stats.css('display', 'none');
+    }
+
+    updateLevelView();
+
     // Footer
     $primary = $("#divSubmitFooter");
     var ihtml = "";
 
     if (frame) {
       ihtml += '<br/><div class="small-6 cell"><a class="button block-btn new-seach-btn" onclick="closeSubmitWindow();resetSearchSession()">New search</a></div>'
-    } else {
+    } else if (!areStats) {
       ihtml += '<div id="submit-progress">  <div id="submit-bar"></div> </div>'
     }
 
@@ -504,7 +548,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     $bar.removeClass();
     $bar.addClass("submit-bar-complete");
 
-    if (!frame) {
+    if (!frame && !areStats) {
       setTimeout(closeSubmitWindow, hideSubmitWindow, subWindowTick);
     }
   }
@@ -623,6 +667,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           vd.somhunter = data.viewData.somhunter;
           updateRescoreButton();
           updateTargetImage();
+          found = false;
         })
         .catch((e) => {
           console.log("Error: " + JSON.stringify(e.message));
@@ -862,6 +907,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     putDocumentToState(vd);
     updateTargetImage();
     updateRescoreButton();
+    updateLevelView();
 
     $(window).bind('mousewheel DOMMouseScroll', function (event) {
       if (event.shiftKey) {
