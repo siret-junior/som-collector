@@ -259,7 +259,7 @@ public:
 	static std::vector<VideoFramePointer> range_to_video_frame(
 	  const FrameRange &ids);
 
-	std::vector<VideoFrame> DatasetFrames::ids_copy_video_frame(
+	std::vector<VideoFrame> ids_copy_video_frame(
 	  const std::vector<ImageId> &ids) const;
 
 private:
