@@ -151,7 +151,7 @@ exports.submitFrame = function (req, res) {
   const sub = global.core.submitToServer(req.session.user, submittedFrameId);
   // -------------------------------
 
-  res.status(200).jsonp({correct: sub});
+  res.status(200).jsonp(sub);
 };
 
 exports.reportIssue = function (req, res) {
@@ -192,7 +192,12 @@ exports.getTarget = function (req, res) {
   global.logger.log("info", target)
 
   // Send response
-  res.status(200).jsonp(global.cfg.framesPathPrefix + target.targetPath);
+  var resVal = global.cfg.framesPathPrefix + target.targetPath;
+  if (target.targetPath == "nothing.jpg") {
+    resVal = target.targetPath;
+  }
+
+  res.status(200).jsonp(resVal);
 };
 
 exports.resetSearchSession = function (req, res) {

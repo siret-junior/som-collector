@@ -21,8 +21,6 @@ class FeedbackLogger
 
 	int64_t laction_time;
 
-	size_t curr_iter;
-	size_t target_iter;
 
 public:
 	static const std::string FEEDBACK;
@@ -34,6 +32,9 @@ public:
 	static const std::string DISPLAY_SOM;
 	static const std::string DISPLAY_TOP;
 
+	size_t curr_iter;
+	size_t target_iter;
+	
 	inline FeedbackLogger(const std::string &usr, const Config &cfg)
 	  : log_dir(cfg.feedback_log_dir)
 	  , user(usr)

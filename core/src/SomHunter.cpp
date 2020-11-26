@@ -187,7 +187,7 @@ SomHunter::som_ready() const
 	return asyncSom.map_ready();
 }
 
-std::tuple<bool, bool, bool>
+SubmitResult
 SomHunter::submit_to_server(ImageId frame_id)
 {
 	std::lock_guard<std::mutex> guard(mutex);
@@ -207,10 +207,33 @@ SomHunter::submit_to_server(ImageId frame_id)
 	                     frames,
 	                     frame_id);
 	auto guess = frames.get_frame(frame_id);
-	return { guess.frame_ID == targetFrame.frame_ID,
-		 guess.video_ID == targetFrame.video_ID &&
-		   guess.shot_ID == targetFrame.shot_ID,
-		 guess.video_ID == targetFrame.video_ID };
+
+	// Apply points and found on counters
+	if (guess.frame_ID == targetFrame.frame_ID) {
+		points[target_index] = 3;
+		f_found_on[target_index] = std::min(f_found_on[target_index], flogger.target_iter);
+	} 
+
+	if (guess.video_ID == targetFrame.video_ID &&
+	           guess.shot_ID == targetFrame.shot_ID) {
+		points[target_index] = std::max(size_t(2), points[target_index]);
+		s_found_on[target_index] = std::min(s_found_on[target_index], flogger.target_iter);
+	} 
+
+	if (guess.video_ID == targetFrame.video_ID) {
+		points[target_index] = std::max(size_t(1), points[target_index]);
+		v_found_on[target_index] = std::min(v_found_on[target_index], flogger.target_iter);
+	}
+
+	return SubmitResult{guess.video_ID == targetFrame.video_ID,
+		             guess.video_ID == targetFrame.video_ID &&
+		               guess.shot_ID == targetFrame.shot_ID,
+		             guess.frame_ID == targetFrame.frame_ID,
+		             target_index,
+		             points.data(),
+		             v_found_on.data(),
+		             s_found_on.data(),
+		             f_found_on.data() };
 }
 
 DisplayType
@@ -405,10 +428,11 @@ SomHunter::get_previous_display()
 	PreviousDisplay previousDisplay;
 	previousDisplay.display.reserve(ids.size());
 	for (size_t i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
-		if (ids[i] == IMAGE_ID_ERR_VAL) 
+		if (ids[i] == IMAGE_ID_ERR_VAL)
 			previousDisplay.display.push_back(nullptr);
 		else
-			previousDisplay.display.push_back(&logged_display_frames[i]);
+			previousDisplay.display.push_back(
+			  &logged_display_frames[i]);
 	}
 
 	// Apply former likes
@@ -421,7 +445,8 @@ SomHunter::get_previous_display()
 	// get target image
 	// 8th column is target image id (7th index)
 	size_t target_image_id_index = 7;
-	ImageId loggedTargetID = (ImageId)std::stol(splitted_csv_data[target_image_id_index]);
+	ImageId loggedTargetID =
+	  (ImageId)std::stol(splitted_csv_data[target_image_id_index]);
 	previousDisplay.target = &frames.get_frame(loggedTargetID);
 
 	// get cosine distance
@@ -429,7 +454,8 @@ SomHunter::get_previous_display()
 	previousDisplay.distances.reserve(ids.size());
 	for (size_t i = 0; i < DISPLAY_GRID_WIDTH * DISPLAY_GRID_HEIGHT; i++) {
 		size_t index = 14 + (i * 6) + 4;
-		previousDisplay.distances.emplace_back(std::stof(splitted_csv_data[index]));
+		previousDisplay.distances.emplace_back(
+		  std::stof(splitted_csv_data[index]));
 	}
 
 	return previousDisplay;

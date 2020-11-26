@@ -35,10 +35,10 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           <div class="grid-x align-left grid-padding-x">
             <!-- Top buttons -->
             <div class="small-6 cell">
-              <a class="button block-btn new-seach-btn" onclick="resetSearchSession()">New search</a>
+              <a class="button block-btn new-seach-btn" onclick="resetSearchSession()">Vzdát se</a>
             </div>
             <div class="small-6 cell">
-              <a class="button block-btn help-btn" data-open="modalHelp">Help</a>
+              <a class="button block-btn help-btn" data-open="modalHelp">Pomoc</a>
             </div>
 
           </div>
@@ -68,14 +68,14 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
             <%- include autocomplete_logic.ejs %>
 
             <div class="autocomplete-input-cont small-12 cell">
-              <a id="rescore-som-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowSom()">Next display
+              <a id="rescore-som-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowSom()">Pokračovat
                 (SOM)</a>
-              <a id="rescore-topn-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowTop()">Next display
+              <a id="rescore-topn-btn" class="button block-btn rescore-btn" onclick="rescoreAndShowTop()">Pokračovat
                 (Top N)</a>
             </div>
             <div id="prev-disp-div" class="small-12 cell" style="display: none;">
               <a id="show-previous-btn" class="button block-btn prev-disp-btn" onclick="showPreviousDisplay()" data-open="modalDetail">
-                Show previous display</a>
+                Zobrazit předchozí displej</a>
             </div>
           </div>
         </form>
@@ -91,7 +91,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           <div class="screen-btns grid-x align-left">
 
             <span class="target-image-label">
-              Target image:
+              Hledaný obrázek:
             </span>
 
             <img class="" id="target_img" style="height: 30vh;width: 30vw;"> </img>
@@ -103,7 +103,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         <br />
 
         <div class="grid-container screen-btns grid-x align-left">
-          <a id="rescore-topn-btn" class="button block-btn" onclick="reportIssue()">Issue</a>
+          <a id="rescore-topn-btn" class="button block-btn" onclick="reportIssue()">Špatný displej</a>
         </div>
       </section>
 
@@ -211,7 +211,18 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         <span aria-hidden="true">&times;</span>
       </button>
 
-      <p class="primary" style="text-align: center;"></p>
+      <p class="primary" style="text-align: center;">
+        <div style="display: flex; justify-content: center;">Správný obrázek: <div id="divCorrectFrame"></div></div>
+        <div style="display: flex; justify-content: center;">Správná scéna: <div id="divCorrectShot"></div></div>
+        <div style="display: flex; justify-content: center;">Správné video: <div id="divCorrectVideo"></div></div>
+      </p>
+
+      <p>
+        <div id="divSubmitStats">
+        </div>
+      </p>
+
+      <p><div id="divSubmitFooter"></div></p>
 
     </div>
 </section>

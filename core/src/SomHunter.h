@@ -41,7 +41,8 @@
 #include "RelevanceScores.h"
 #include "Submitter.h"
 
-#define PREPARE_IMAGE_ID 285240
+#define PREPARE_IMAGE_ID 0
+#define NOT_FOUND_YET 9999
 
 class SomHunter
 {
@@ -87,6 +88,10 @@ class SomHunter
 	//std::uniform_int_distribution<int> distrib;
 
 	std::vector<ImageId> targets;
+	std::vector<size_t> points;
+	std::vector<size_t> v_found_on;
+	std::vector<size_t> s_found_on;
+	std::vector<size_t> f_found_on;
 	size_t target_index;
 
 	std::mutex mutex;
@@ -126,6 +131,11 @@ public:
 			targets.push_back(PREPARE_IMAGE_ID);
 		}
 
+		points.resize(targets.size());
+		v_found_on.resize(targets.size(), NOT_FOUND_YET);
+		s_found_on.resize(targets.size(), NOT_FOUND_YET);
+		f_found_on.resize(targets.size(), NOT_FOUND_YET);
+
 		targetId = targets[target_index];
 		targetFrame = frames.get_frame(targetId);
 		asyncSom.start_work(*features, scores);
@@ -162,7 +172,7 @@ public:
 	bool som_ready() const;
 
 	/** Sumbits frame with given id to VBS server */
-	std::tuple<bool, bool, bool> submit_to_server(ImageId frame_id);
+	SubmitResult submit_to_server(ImageId frame_id);
 
 	/** Resets current search context and starts new search */
 	DisplayType reset_search_session();

@@ -36,7 +36,8 @@ SomHunterNapi::Init(Napi::Env env, Napi::Object exports)
 	  "SomHunterNapi",
 	  { InstanceMethod("getDisplay", &SomHunterNapi::get_display),
 	    InstanceMethod("getTarget", &SomHunterNapi::get_target_image),
-		InstanceMethod("getPreviousDisplay", &SomHunterNapi::get_previous_display),
+	    InstanceMethod("getPreviousDisplay",
+	                   &SomHunterNapi::get_previous_display),
 	    InstanceMethod("addLikes", &SomHunterNapi::add_likes),
 	    InstanceMethod("rescore", &SomHunterNapi::rescore),
 	    InstanceMethod("resetAll", &SomHunterNapi::reset_all),
@@ -47,7 +48,8 @@ SomHunterNapi::Init(Napi::Env env, Napi::Object exports)
 	                   &SomHunterNapi::autocomplete_keywords),
 	    InstanceMethod("isSomReady", &SomHunterNapi::is_som_ready),
 	    InstanceMethod("submitToServer", &SomHunterNapi::submit_to_server),
-	    InstanceMethod("getLastTextQuery", &SomHunterNapi::get_last_text_query),
+	    InstanceMethod("getLastTextQuery",
+	                   &SomHunterNapi::get_last_text_query),
 	    InstanceMethod("reportIssue", &SomHunterNapi::report_issue) });
 
 	constructor = Napi::Persistent(func);
@@ -96,7 +98,7 @@ SomHunterNapi::get_previous_display(const Napi::CallbackInfo &info)
 
 	const std::string usr = info[0].As<Napi::String>().Utf8Value();
 	std::string path_prefix{ info[1].As<Napi::String>().Utf8Value() };
-	
+
 	// Call native method
 	PreviousDisplay previous_display;
 	try {
@@ -107,7 +109,7 @@ SomHunterNapi::get_previous_display(const Napi::CallbackInfo &info)
 			warn("Hunter not found for user " << usr << "!!!");
 
 		previous_display = hunter->get_previous_display();
-		  
+
 		debug("API: RETURN \n\t get_previous_display");
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
@@ -115,7 +117,6 @@ SomHunterNapi::get_previous_display(const Napi::CallbackInfo &info)
 	napi_value result;
 	napi_create_object(env, &result);
 
-	
 	// Set "frames"
 	{
 		napi_value upperKey;
@@ -211,7 +212,6 @@ SomHunterNapi::get_previous_display(const Napi::CallbackInfo &info)
 
 		napi_set_property(env, result, upperKey, arr);
 
-
 		napi_value upperKey1;
 		napi_create_string_utf8(
 		  env, "distances", NAPI_AUTO_LENGTH, &upperKey1);
@@ -230,9 +230,7 @@ SomHunterNapi::get_previous_display(const Napi::CallbackInfo &info)
 				{
 					float distance{ 0.0 };
 
-					
 					distance = (*it);
-					
 
 					{
 						napi_value key;
@@ -243,17 +241,13 @@ SomHunterNapi::get_previous_display(const Napi::CallbackInfo &info)
 						  &key);
 
 						napi_value value;
-						
+
 						napi_create_double(
-							env,
-							distance,
-							&value);
-						
+						  env, distance, &value);
 
 						napi_set_property(
 						  env, obj, key, value);
 					}
-
 				}
 				napi_set_element(env, arr1, i, obj);
 
@@ -275,73 +269,55 @@ SomHunterNapi::get_previous_display(const Napi::CallbackInfo &info)
 			if (previous_display.target != nullptr) {
 				ID = previous_display.target->frame_ID;
 				is_liked = previous_display.target->liked;
-				filename =
-					path_prefix + previous_display.target->filename;
+				filename = path_prefix +
+				           previous_display.target->filename;
 			}
 
 			{
 				napi_value key;
 				napi_create_string_utf8(
-					env,
-					"id",
-					NAPI_AUTO_LENGTH,
-					&key);
+				  env, "id", NAPI_AUTO_LENGTH, &key);
 
 				napi_value value;
 				if (ID == IMAGE_ID_ERR_VAL) {
-					napi_get_null(env,
-									&value);
+					napi_get_null(env, &value);
 				} else {
 					napi_create_uint32(
-						env,
-						uint32_t(ID),
-						&value);
+					  env, uint32_t(ID), &value);
 				}
 
-				napi_set_property(
-					env, obj, key, value);
+				napi_set_property(env, obj, key, value);
 			}
 
 			{
 				napi_value key;
 				napi_create_string_utf8(
-					env,
-					"liked",
-					NAPI_AUTO_LENGTH,
-					&key);
+				  env, "liked", NAPI_AUTO_LENGTH, &key);
 
 				napi_value value;
-				napi_get_boolean(
-					env, is_liked, &value);
+				napi_get_boolean(env, is_liked, &value);
 
-				napi_set_property(
-					env, obj, key, value);
+				napi_set_property(env, obj, key, value);
 			}
 
 			{
 				napi_value key;
 				napi_create_string_utf8(
-					env,
-					"src",
-					NAPI_AUTO_LENGTH,
-					&key);
+				  env, "src", NAPI_AUTO_LENGTH, &key);
 
 				napi_value value;
-				napi_create_string_utf8(
-					env,
-					filename.c_str(),
-					NAPI_AUTO_LENGTH,
-					&value);
+				napi_create_string_utf8(env,
+				                        filename.c_str(),
+				                        NAPI_AUTO_LENGTH,
+				                        &value);
 
-				napi_set_property(
-					env, obj, key, value);
+				napi_set_property(env, obj, key, value);
 			}
 		}
 
 		napi_set_property(env, result, key, obj);
 	}
 	return Napi::Object(env, result);
-
 }
 
 Napi::Value
@@ -549,8 +525,13 @@ SomHunterNapi::get_target_image(const Napi::CallbackInfo &info)
 		napi_create_string_utf8(
 		  env, "targetPath", NAPI_AUTO_LENGTH, &key);
 		napi_value value;
-		napi_create_string_utf8(
-		  env, target->filename.c_str(), NAPI_AUTO_LENGTH, &value);
+		if (target->frame_ID != PREPARE_IMAGE_ID) {
+			napi_create_string_utf8(
+			env, target->filename.c_str(), NAPI_AUTO_LENGTH, &value);
+		} else {
+			napi_create_string_utf8(
+			env, "nothing.jpg", NAPI_AUTO_LENGTH, &value);
+		}
 
 		napi_set_property(env, result_dict, key, value);
 	}
@@ -895,12 +876,11 @@ SomHunterNapi::get_last_text_query(const Napi::CallbackInfo &info)
 
 		auto lquery = somhunter->get(usr)->get_last_text_query();
 		napi_create_string_utf8(
-				env, lquery.c_str(), NAPI_AUTO_LENGTH, &result);
+		  env, lquery.c_str(), NAPI_AUTO_LENGTH, &result);
 
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
-
 
 	return Napi::Object(env, result);
 }
@@ -922,30 +902,134 @@ SomHunterNapi::submit_to_server(const Napi::CallbackInfo &info)
 	const std::string usr = info[0].As<Napi::String>().Utf8Value();
 	ImageId frame_ID{ info[1].As<Napi::Number>().Uint32Value() };
 
-	napi_value result_arr;
-	napi_create_array(env, &result_arr);
+	napi_value single_result_dict;
+	napi_create_object(env, &single_result_dict);
 	try {
 		debug("API: CALL \n\t submit_to_server\n\t\frame_ID = "
 		      << frame_ID);
 
-		auto res = somhunter->get(usr)->submit_to_server(frame_ID);
+		SubmitResult res =
+		  somhunter->get(usr)->submit_to_server(frame_ID);
 
-		napi_value frame;
-		napi_get_boolean(env, std::get<0>(res), &frame);
-		napi_value shot;
-		napi_get_boolean(env, std::get<1>(res), &shot);
-		napi_value video;
-		napi_get_boolean(env, std::get<2>(res), &video);
+		// Corectness
+		{
 
-		napi_set_element(env, result_arr, 0, frame);
-		napi_set_element(env, result_arr, 1, shot);
-		napi_set_element(env, result_arr, 2, video);
+			// Frame
+			{
+				napi_value fkey;
+				napi_create_string_utf8(
+				  env, "correctFrame", NAPI_AUTO_LENGTH, &fkey);
+				napi_value frame;
+				napi_get_boolean(env, res.cFrame, &frame);
+
+				napi_set_property(
+				  env, single_result_dict, fkey, frame);
+			}
+			// Shot
+			{
+				napi_value skey;
+				napi_create_string_utf8(
+				  env, "correctShot", NAPI_AUTO_LENGTH, &skey);
+				napi_value shot;
+				napi_get_boolean(env, res.cShot, &shot);
+
+				napi_set_property(
+				  env, single_result_dict, skey, shot);
+			}
+
+			// Video
+			{
+				napi_value vkey;
+				napi_create_string_utf8(
+				env, "correctVideo", NAPI_AUTO_LENGTH, &vkey);
+				napi_value video;
+				napi_get_boolean(env, res.cVideo, &video);
+
+				napi_set_property(env, single_result_dict, vkey, video);
+			}
+		}
+
+		// Points
+		{
+			napi_value point_arr;
+			napi_create_array(env, &point_arr);
+
+			auto point_iter = res.points;
+			for (size_t i = 0; i <= res.target_index; ++i, point_iter++) {
+				napi_value point;
+				napi_create_int64(env, *point_iter, &point);
+				napi_set_element(env, point_arr, i, point);
+			}
+
+			napi_value key;
+			napi_create_string_utf8(
+			env, "points", NAPI_AUTO_LENGTH, &key);
+
+			napi_set_property(env, single_result_dict, key, point_arr);
+		}
+
+		// Video found on
+		{
+			napi_value arr;
+			napi_create_array(env, &arr);
+
+			auto iter = res.v_found_on;
+			for (size_t i = 0; i <= res.target_index; ++i, iter++) {
+				napi_value point;
+				napi_create_int64(env, *iter, &point);
+				napi_set_element(env, arr, i, point);
+			}
+
+			napi_value key;
+			napi_create_string_utf8(
+			env, "video_on", NAPI_AUTO_LENGTH, &key);
+
+			napi_set_property(env, single_result_dict, key, arr);
+		}
+
+		// Shot found on
+		{
+			napi_value arr;
+			napi_create_array(env, &arr);
+
+			auto iter = res.s_found_on;
+			for (size_t i = 0; i <= res.target_index; ++i, iter++) {
+				napi_value point;
+				napi_create_int64(env, *iter, &point);
+				napi_set_element(env, arr, i, point);
+			}
+
+			napi_value key;
+			napi_create_string_utf8(
+			env, "shot_on", NAPI_AUTO_LENGTH, &key);
+
+			napi_set_property(env, single_result_dict, key, arr);
+		}
+		
+		// Shot found on
+		{
+			napi_value arr;
+			napi_create_array(env, &arr);
+
+			auto iter = res.f_found_on;
+			for (size_t i = 0; i <= res.target_index; ++i, iter++) {
+				napi_value point;
+				napi_create_int64(env, *iter, &point);
+				napi_set_element(env, arr, i, point);
+			}
+
+			napi_value key;
+			napi_create_string_utf8(
+			env, "frame_on", NAPI_AUTO_LENGTH, &key);
+
+			napi_set_property(env, single_result_dict, key, arr);
+		}
 
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
 
-	return Napi::Object(env, result_arr);
+	return Napi::Object(env, single_result_dict);
 }
 
 Napi::Value

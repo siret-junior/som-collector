@@ -129,4 +129,17 @@ struct SubmitData
 
 using PageId = unsigned;
 
+struct SubmitResult {
+	bool cVideo;
+	bool cShot;
+	bool cFrame;
+
+	size_t target_index;
+
+	size_t* points;
+	size_t* v_found_on;
+	size_t* s_found_on;
+	size_t* f_found_on;
+};
+
 #endif // COMMON_H_

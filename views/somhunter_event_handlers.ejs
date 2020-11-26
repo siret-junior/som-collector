@@ -215,9 +215,13 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         endWorking();
       })
       .catch((e) => {
-        console.log(e);
-        console.log(e.message);
-        setTimeout(forceShowSomDisplay, 1000);
+        if ('SOM not yet ready.' !== e.message)
+        {
+          console.log(e);
+          console.log(e.message);
+        } else {
+          setTimeout(forceShowSomDisplay, 1000);
+        }
       });
   }
 
@@ -460,20 +464,33 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       });
   }
 
-  const hideSubmitWindow = 3000;
+  const hideSubmitWindow = 30000;
+  const statStep = 5;
   var subWindowTick = 0;
-  //function showSubmitWindow(messagePrimary, messageSecondary, time, type = "i") {
-  function showSubmitWindow(image, shot, video) {
+  var subUntilStats = statStep;
+
+  function showSubmitWindow(data) {
+    const frame = data.correctFrame;
+    const shot = data.correctShot;
+    const video = data.correctVideo;
+    const correctTick = '<div style="color: green;">✓</div>'
+    const wrongTick = '<div style="color: red;">✗</div>'
+    
     subWindowTick++;
     $cont = $("#submitCont");
 
-    $primary = $($cont.children(".primary")[0]);
+    // Result table
+    $("#divCorrectFrame").html(frame ? correctTick : wrongTick);
+    $("#divCorrectShot").html(shot ? correctTick : wrongTick);
+    $("#divCorrectVideo").html(video ? correctTick : wrongTick);
 
-    var ihtml = "Correct video: " + (video ? "✓" : "✗") +
-      "<br/>Correct shot: " + (shot ? "✓" : "✗") +
-      "<br/>Correct image: " + (image ? "✓" : "✗");
+    
+    
+    // Footer
+    $primary = $("#divSubmitFooter");
+    var ihtml = "";
 
-    if (image) {
+    if (frame) {
       ihtml += '<br/><div class="small-6 cell"><a class="button block-btn new-seach-btn" onclick="closeSubmitWindow();resetSearchSession()">New search</a></div>'
     } else {
       ihtml += '<div id="submit-progress">  <div id="submit-bar"></div> </div>'
@@ -487,7 +504,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     $bar.removeClass();
     $bar.addClass("submit-bar-complete");
 
-    if (!image) {
+    if (!frame) {
       setTimeout(closeSubmitWindow, hideSubmitWindow, subWindowTick);
     }
   }
@@ -527,8 +544,10 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
             throw Error(data.error.message);
           }
 
+          console.log(data)
+
           endWorking();
-          showSubmitWindow(data.correct[0], data.correct[1], data.correct[2]);
+          showSubmitWindow(data);
         })
         .catch((e) => {
           console.log("Error: " + JSON.stringify(e.message));
