@@ -239,7 +239,7 @@ SomHunter::submit_to_server(ImageId frame_id)
 DisplayType
 SomHunter::get_available_display()
 {
-	if ((target_index % 2) == 1) {
+	if (((target_index + user_order) % 2) == 1) {
 		debug("New avail display is TopN");
 		return DisplayType::DTopN;
 	} else {

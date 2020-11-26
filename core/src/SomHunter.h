@@ -59,7 +59,8 @@ class SomHunter
 
 	// Used keyword query
 	std::string last_text_query;
-	std::string user;
+	const std::string user;
+	const size_t user_order;
 
 	// Relevance feedback context
 	std::set<ImageId> likes;
@@ -102,7 +103,8 @@ public:
 	inline SomHunter(const std::string usr,
 	                 const Config &cfg,
 	                 const DatasetFeatures *feats,
-	                 const KeywordRanker *kws)
+	                 const KeywordRanker *kws,
+					 const size_t user_order)
 	  : config(cfg)
 	  , features(feats)
 	  , keywords(kws)
@@ -117,6 +119,7 @@ public:
 	  , targetId(0)
 	  , targetFrame(frames.get_frame(0))
 	  , user(usr)
+	  , user_order(user_order)
 	{
 		std::ifstream in(config.target_list_file);
 		if (!in.good()) {
@@ -237,6 +240,8 @@ class SomHuntersGuild
 	const DatasetFeatures features;
 	const KeywordRanker kws;
 
+	size_t hunter_count;
+
 public:
 	SomHuntersGuild() = delete;
 
@@ -245,6 +250,7 @@ public:
 	  , features(DatasetFrames(cfg),
 	             cfg) // TODO is it really necessary to load all frames?
 	  , kws(cfg)
+	  , hunter_count(0)
 	{
 		debug("SomHuntersGuild created");
 	}
@@ -256,7 +262,7 @@ public:
 			id_to_hunter.emplace(
 			  std::make_pair(std::string(id),
 			                 std::make_unique<SomHunter>(
-			                   id, cfg, &features, &kws)));
+			                   id, cfg, &features, &kws, ++hunter_count)));
 			info("New hunter was created with id " << id);
 		}
 		return id_to_hunter[id].get();
