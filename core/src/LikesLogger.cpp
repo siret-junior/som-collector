@@ -7,7 +7,6 @@
 #include "LikesLogger.h"
 #include "RelevanceScores.h"
 
-#define HISTOGRAM_BINS 100
 
 #define clamp(x, min, max) (x < min ? min : (x > max ? max : x))
 
