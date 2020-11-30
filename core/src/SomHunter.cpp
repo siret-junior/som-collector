@@ -464,7 +464,7 @@ SomHunter::get_previous_display()
 	for(size_t i = 0; i < HISTOGRAM_BINS; i++ )
 	{
 		previousDisplay.histogram.emplace_back(
-			std::stol(splitted_csv_data[csv_histogram_start+i]));
+			std::stoi(splitted_csv_data[csv_histogram_start+i]));
 	}
 
 	return previousDisplay;
