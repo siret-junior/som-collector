@@ -458,6 +458,15 @@ SomHunter::get_previous_display()
 		  std::stof(splitted_csv_data[index]));
 	}
 
+	// get histogram data
+	previousDisplay.histogram.reserve(HISTOGRAM_BINS);
+	size_t csv_histogram_start = 398;
+	for(size_t i = 0; i < HISTOGRAM_BINS; i++ )
+	{
+		previousDisplay.histogram.emplace_back(
+			std::stol(splitted_csv_data[csv_histogram_start+i]));
+	}
+
 	return previousDisplay;
 }
 

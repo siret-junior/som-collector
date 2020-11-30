@@ -13,6 +13,8 @@
 #include "config_json.h"
 #include "log.h"
 
+#define HISTOGRAM_BINS 100
+
 class FeedbackLogger
 {
 	std::string log_dir;

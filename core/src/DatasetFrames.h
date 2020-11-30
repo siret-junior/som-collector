@@ -69,6 +69,7 @@ struct PreviousDisplay {
 	VideoFramePointer target;
 	std::vector<VideoFramePointer> display;
 	std::vector<float> distances;
+	std::vector<int> histogram;
 };
 
 struct FrameRange

@@ -147,7 +147,45 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       elem.innerHTML = "";
       rescore(showTopDisplay);
     }
+
+
+  }function showPreviousHistogram() {
+    pageId = 0;
+    // Make the request
+    fetch("/get_previous_screen", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        if (!res.ok) { throw Error(res.statusText); }
+        return res.json()
+      })
+      .then((data) => {
+        // Handle error
+
+        if (data.error) {
+          throw Error(data.error.message);
+        }
+
+        // Get updated view data
+        viewData = data.viewData;
+        plotPreviousHistogram(viewData);
+
+      })
+      .catch((e) => {
+        console.log("Error: " + JSON.stringify(e.message));
+        showGlobalMessage(
+          "Request failed!",
+          JSON.stringify(e.message),
+          5000,
+          "e"
+        );
+      });
+      $('#modalHistogram').foundation('open');
   }
+
   function showPreviousDisplay() {
     pageId = 0;
     // Make the request
@@ -170,7 +208,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
         // Get updated view data
         viewData = data.viewData;
-        putDetailModelToState(viewData);
+        populatePreviousDisplay(viewData);
 
       })
       .catch((e) => {
@@ -259,21 +297,48 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         );
       });
   }
+  function plotPreviousHistogram(screenData) {
+    const ctx = document.getElementById('histogram').getContext('2d');
+    histogram_labels = Array.from({length: 100}, (_, i) => i + 1);
+    histogram_data = [];
+    for(var i = 0; i < screenData.histogram.length; i++)
+    {
+      histogram_data[i] = screenData.histogram[i].histogram;
+    }
+    const chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: histogram_labels,
+        datasets: [{
+          label: 'Count',
+          data: histogram_data,
+          backgroundColor: 'green',
+        }]
+      },
+      options: {
+        scales: {
+          xAxes: [{
+            display: false,
+          }, {
+            display: true,
+            ticks: {
+              autoSkip: false,
+            }
+          }],
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+  }
 
-
-  function putDetailModelToState(screenData) {
+  function populatePreviousDisplay(screenData) {
     const grid = document.getElementById("videoDetailFrameGrid");
     const targetGrid = document.getElementById("targetFrameGrid");
     const frames = screenData.frames;
-
-    /*
-    screenData {
-      {
-        type: screen,
-        frames: frames,
-      }
-    } 
-    */
     
     $(grid).empty();
     $(targetGrid).empty();

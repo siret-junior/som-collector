@@ -211,6 +211,54 @@ SomHunterNapi::get_previous_display(const Napi::CallbackInfo &info)
 		}
 
 		napi_set_property(env, result, upperKey, arr);
+		
+
+		
+		napi_value histogramKey;
+		napi_create_string_utf8(
+		  env, "histogram", NAPI_AUTO_LENGTH, &histogramKey);
+
+		// Create array
+		napi_value arr2;
+		napi_create_array(env, &arr2);
+		{
+			size_t i{ 0_z };
+			for (auto it{ previous_display.histogram.begin() };
+			     it != previous_display.histogram.end();
+			     ++it) {
+
+				napi_value obj;
+				napi_create_object(env, &obj);
+				{
+					int histogram{ 0 };
+
+					histogram = (*it);
+
+					{
+						napi_value key;
+						napi_create_string_utf8(
+						  env,
+						  "histogram",
+						  NAPI_AUTO_LENGTH,
+						  &key);
+
+						napi_value value;
+
+						napi_create_double(
+						  env, histogram, &value);
+
+						napi_set_property(
+						  env, obj, histogramKey, value);
+					}
+				}
+				napi_set_element(env, arr2, i, obj);
+
+				++i;
+			}
+		}
+		napi_set_property(env, result, histogramKey, arr2);
+
+
 
 		napi_value upperKey1;
 		napi_create_string_utf8(
