@@ -298,7 +298,13 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       });
   }
   function plotPreviousHistogram(screenData) {
+
+    var chartContent = document.getElementById('chartContent');
+    chartContent.innerHTML = '&nbsp;';
+    $('#chartContent').append('<canvas id="histogram" width="400" height="200%"></canvas>');
+
     const ctx = document.getElementById('histogram').getContext('2d');
+    
     histogram_labels = Array.from({length: 100}, (_, i) => i + 1);
     histogram_data = [];
     for(var i = 0; i < screenData.histogram.length; i++)
