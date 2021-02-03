@@ -530,13 +530,13 @@ display: block;
 }
 
 .submit-modal {
-  height: 36vh; 
+  height: 44vh; 
   width: 40vw !important; 
   position: absolute !important; 
   left: 50% !important; 
   top: 50% !important; 
   margin-left: -20vw !important; 
-  margin-top: -13vh !important;
+  margin-top: -22vh !important;
   background-color: #ccffcc;
 }
 

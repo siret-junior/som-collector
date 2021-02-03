@@ -1,4 +1,4 @@
-<!-- 
+﻿<!-- 
 This file is part of SOMHunter.
 
 Copyright (C) 2020 František Mejzlík <frankmejzlik@gmail.com>
@@ -98,6 +98,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
+        endWorking();
         showGlobalMessage(
           "Request failed!",
           JSON.stringify(e.message),
@@ -257,6 +258,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         {
           console.log(e);
           console.log(e.message);
+		  endWorking();
         } else {
           setTimeout(forceShowSomDisplay, 1000);
         }
@@ -289,6 +291,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
+		endWorking();
         showGlobalMessage(
           "Request failed!",
           JSON.stringify(e.message),
@@ -426,6 +429,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
+		endWorking();
         showGlobalMessage(
           "Request failed!",
           JSON.stringify(e.message),
@@ -526,6 +530,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
+		endWorking();
         showGlobalMessage(
           "Request failed!",
           JSON.stringify(e.message),
@@ -560,7 +565,17 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     $cont = $("#submitCont");
 
     // Result table
-    $("#divCorrectFrame").html(frame ? correctTick : wrongTick);
+    if(frame)
+    {
+      $("#divSubmitHeader").html("Tak to je paráda! Našel si přesně ten hledaný obrázek, pokračuj na další hledání.");
+    }
+    else if(shot || video){
+      $("#divSubmitHeader").html("Skvělá práce, zkus najít i přesný hledaný snímek, jsou za něj extra body!");
+    }
+    else{
+      $("#divSubmitHeader").html("Tohle bohužel není hledaný snímek ani video, zkus to znovu :)");
+    }
+	$("#divCorrectFrame").html(frame ? correctTick : wrongTick);
     $("#divCorrectShot").html(shot ? correctTick : wrongTick);
     $("#divCorrectVideo").html(video ? correctTick : wrongTick);
 
@@ -572,7 +587,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
     // Update level
     if (experiences >= (level * levelStep)) {
-      level++;
+	  level = Math.floor(experiences / levelStep) + 1;
       areStats = true;
       
       const videoF = (100 * data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a,b)=> a + b) / (data.videoOn.length - 2)).toFixed(2);
@@ -666,6 +681,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         })
         .catch((e) => {
           console.log("Error: " + JSON.stringify(e.message));
+          endWorking();
           showGlobalMessage(
             "Request failed!",
             JSON.stringify(e.message),
@@ -700,6 +716,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         })
         .catch((e) => {
           console.log("Error: " + JSON.stringify(e.message));
+          endWorking();
           showGlobalMessage(
             "Request failed!",
             JSON.stringify(e.message),
@@ -742,6 +759,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         })
         .catch((e) => {
           console.log("Error: " + JSON.stringify(e.message));
+          endWorking();
           showGlobalMessage(
             "Request failed!",
             JSON.stringify(e.message),

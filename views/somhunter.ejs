@@ -1,4 +1,4 @@
-<!-- 
+﻿<!-- 
 This file is part of SOMHunter.
 
 Copyright (C) 2020 František Mejzlík <frankmejzlik@gmail.com>
@@ -166,7 +166,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     <!-- ===================================== -->
     <!-- HELP MODAL -->
     <!-- ===================================== -->
-    <div class="large reveal grid-x" id="modalHelp" data-reveal data-src="999" data-overlay="false">
+    <div class="large reveal grid-x" id="modalHelp" data-reveal data-src="999">
 
       <button class="close-button" data-close aria-label="Close modal" type="button">
         <span aria-hidden="true">&times;</span>
@@ -209,7 +209,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         Pokud si myslíte, že aktuálně zobrazený displej je z nějakého ohledu "špatný", klikněte na tlačítko "Špatný displej".
       </p>
 
-    </div>
+ <img src="help.png" />   </div>
 
     <!-- ===================================== -->
     <!-- ACCEPT DATA GATHERING -->
@@ -219,12 +219,14 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       <h1>Upozornění</h1>
       <p>
         Spuštěním a používáním této webové aplikace souhlasím se sběrem interakcí při hledaní obrázku (tj. dotazy a
-        klikání myši) pro vědecke účely.
+        klikání myši) pro vědecké účely.
       </p>
 
-      <button class="close-button" data-close aria-label="Close modal" type="button" style="bottom: 0.5rem; top: auto;"
+  <img src="help.png" />    <button class="close-button" data-close aria-label="Close modal" type="button" style="top: auto;"
         onclick="document.getElementById('modalAc').style.display = 'none'">
-        <span aria-hidden="true">Souhlasím</span>
+        <span aria-hidden="true" style="background-color: #00cc33; color: white; border-radius: 10px; padding: 5px;">
+			Souhlasím
+		</span>
       </button>
     </div>
 
@@ -239,12 +241,13 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       </button>
 
       <p class="primary" style="text-align: center;">
-      <div style="display: flex; justify-content: center;">Správný obrázek: <div id="divCorrectFrame"></div>
-      </div>
-      <div style="display: flex; justify-content: center;">Správná scéna: <div id="divCorrectShot"></div>
-      </div>
-      <div style="display: flex; justify-content: center;">Správné video: <div id="divCorrectVideo"></div>
-      </div>
+		<H1 style="display: flex; justify-content: center;"> <div id="divSubmitHeader"></div></H1>   
+		<div style="display: flex; justify-content: center;">Správný obrázek: <div id="divCorrectFrame"></div>
+		</div>
+		<div style="display: flex; justify-content: center;">Správná scéna: <div id="divCorrectShot"></div>
+		</div>
+		<div style="display: flex; justify-content: center;">Správné video: <div id="divCorrectVideo"></div>
+		</div>
       </p>
 
       <p>
