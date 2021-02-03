@@ -953,8 +953,7 @@ SomHunterNapi::get_level_info(const Napi::CallbackInfo &info)
 	napi_value single_result_dict;
 	napi_create_object(env, &single_result_dict);
 	try {
-		debug("API: CALL \n\t get_level_info\n\t\usr = "
-		      << usr);
+		debug("API: CALL \n\t get_level_info\n\t\tusr = " << usr);
 
 		SubmitResult res =
 		  somhunter->get(usr)->get_level_info();
