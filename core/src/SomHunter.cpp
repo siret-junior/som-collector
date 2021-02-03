@@ -225,10 +225,22 @@ SomHunter::submit_to_server(ImageId frame_id)
 		v_found_on[target_index] = std::min(v_found_on[target_index], flogger.target_iter);
 	}
 
+	save_state();
+
 	return SubmitResult{guess.video_ID == targetFrame.video_ID,
 		             guess.video_ID == targetFrame.video_ID &&
 		               guess.shot_ID == targetFrame.shot_ID,
 		             guess.frame_ID == targetFrame.frame_ID,
+		             target_index,
+		             points.data(),
+		             v_found_on.data(),
+		             s_found_on.data(),
+		             f_found_on.data() };
+}
+
+SubmitResult
+SomHunter::get_level_info() {
+	return SubmitResult{false, false, false,
 		             target_index,
 		             points.data(),
 		             v_found_on.data(),
@@ -284,7 +296,44 @@ SomHunter::reset_search_session()
 	debug("New target id = " << targetId
 	                         << ", target index = " << target_index);
 
+	save_state();
+
 	return get_available_display();
+}
+
+/* 
+*	Save current user progress. Binary format:
+* 	target_index, points, v_found_on, s_found_on, f_found_on
+*/
+void
+SomHunter::save_state() {
+	const auto sav_path = SAVE_DIR + user + "-" + std::to_string(user_order) + ".sav";
+	std::ofstream ostrm(sav_path, std::ios::binary);
+
+	ostrm.write(reinterpret_cast<char*>(&target_index), sizeof target_index); 
+	ostrm.write(reinterpret_cast<char*>(points.data()), points.size() * sizeof(size_t)); 
+	ostrm.write(reinterpret_cast<char*>(v_found_on.data()), v_found_on.size() * sizeof(size_t)); 
+	ostrm.write(reinterpret_cast<char*>(s_found_on.data()), s_found_on.size() * sizeof(size_t)); 
+	ostrm.write(reinterpret_cast<char*>(f_found_on.data()), f_found_on.size() * sizeof(size_t)); 
+
+	debug("State saved");
+}
+
+/* Loads last state */
+void
+SomHunter::load_state() {
+	const auto sav_path = SAVE_DIR + user + "-" + std::to_string(user_order) + ".sav";
+	if (std::filesystem::exists(sav_path)) {
+		std::ifstream istrm(sav_path, std::ios::binary);
+
+		istrm.read(reinterpret_cast<char*>(&target_index), sizeof target_index);
+		istrm.read(reinterpret_cast<char*>(points.data()), points.size() * sizeof(size_t));
+		istrm.read(reinterpret_cast<char*>(v_found_on.data()), v_found_on.size() * sizeof(size_t)); 
+		istrm.read(reinterpret_cast<char*>(s_found_on.data()), s_found_on.size() * sizeof(size_t)); 
+		istrm.read(reinterpret_cast<char*>(f_found_on.data()), f_found_on.size() * sizeof(size_t));
+
+		debug("State loaded");
+	}
 }
 
 void

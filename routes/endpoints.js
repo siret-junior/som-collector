@@ -154,6 +154,17 @@ exports.submitFrame = function (req, res) {
   res.status(200).jsonp(sub);
 };
 
+exports.getLevelInfo = function (req, res) {
+  const sess = req.session;
+
+  // -------------------------------
+  // Call the core
+  const sub = global.core.getLevelInfo(req.session.user);
+  // -------------------------------
+
+  res.status(200).jsonp(sub);
+};
+
 exports.reportIssue = function (req, res) {
 
   // -------------------------------

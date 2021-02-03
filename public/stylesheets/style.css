@@ -530,7 +530,7 @@ display: block;
 }
 
 .submit-modal {
-  height: 44vh; 
+  /*height: 44vh;*/ 
   width: 40vw !important; 
   position: absolute !important; 
   left: 50% !important; 

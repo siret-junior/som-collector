@@ -48,6 +48,7 @@ SomHunterNapi::Init(Napi::Env env, Napi::Object exports)
 	                   &SomHunterNapi::autocomplete_keywords),
 	    InstanceMethod("isSomReady", &SomHunterNapi::is_som_ready),
 	    InstanceMethod("submitToServer", &SomHunterNapi::submit_to_server),
+	    InstanceMethod("getLevelInfo", &SomHunterNapi::get_level_info),
 	    InstanceMethod("getLastTextQuery",
 	                   &SomHunterNapi::get_last_text_query),
 	    InstanceMethod("reportIssue", &SomHunterNapi::report_issue) });
@@ -931,6 +932,152 @@ SomHunterNapi::get_last_text_query(const Napi::CallbackInfo &info)
 	}
 
 	return Napi::Object(env, result);
+}
+
+Napi::Value
+SomHunterNapi::get_level_info(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+	Napi::HandleScope scope(env);
+
+	// Process arguments
+	int length = info.Length();
+
+	if (length != 1) {
+		Napi::TypeError::New(env, "Wrong number of parameters")
+		  .ThrowAsJavaScriptException();
+	}
+
+	const std::string usr = info[0].As<Napi::String>().Utf8Value();
+
+	napi_value single_result_dict;
+	napi_create_object(env, &single_result_dict);
+	try {
+		debug("API: CALL \n\t get_level_info\n\t\usr = "
+		      << usr);
+
+		SubmitResult res =
+		  somhunter->get(usr)->get_level_info();
+
+		// Corectness
+		{
+
+			// Frame
+			{
+				napi_value fkey;
+				napi_create_string_utf8(
+				  env, "correctFrame", NAPI_AUTO_LENGTH, &fkey);
+				napi_value frame;
+				napi_get_boolean(env, res.cFrame, &frame);
+
+				napi_set_property(
+				  env, single_result_dict, fkey, frame);
+			}
+			// Shot
+			{
+				napi_value skey;
+				napi_create_string_utf8(
+				  env, "correctShot", NAPI_AUTO_LENGTH, &skey);
+				napi_value shot;
+				napi_get_boolean(env, res.cShot, &shot);
+
+				napi_set_property(
+				  env, single_result_dict, skey, shot);
+			}
+
+			// Video
+			{
+				napi_value vkey;
+				napi_create_string_utf8(
+				env, "correctVideo", NAPI_AUTO_LENGTH, &vkey);
+				napi_value video;
+				napi_get_boolean(env, res.cVideo, &video);
+
+				napi_set_property(env, single_result_dict, vkey, video);
+			}
+		}
+
+		// Points
+		{
+			napi_value point_arr;
+			napi_create_array(env, &point_arr);
+
+			auto point_iter = res.points;
+			for (size_t i = 0; i <= res.target_index; ++i, point_iter++) {
+				napi_value point;
+				napi_create_int64(env, *point_iter, &point);
+				napi_set_element(env, point_arr, i, point);
+			}
+
+			napi_value key;
+			napi_create_string_utf8(
+			env, "points", NAPI_AUTO_LENGTH, &key);
+
+			napi_set_property(env, single_result_dict, key, point_arr);
+		}
+
+		// Video found on
+		{
+			napi_value arr;
+			napi_create_array(env, &arr);
+
+			auto iter = res.v_found_on;
+			for (size_t i = 0; i <= res.target_index; ++i, iter++) {
+				napi_value point;
+				napi_create_int64(env, *iter, &point);
+				napi_set_element(env, arr, i, point);
+			}
+
+			napi_value key;
+			napi_create_string_utf8(
+			env, "videoOn", NAPI_AUTO_LENGTH, &key);
+
+			napi_set_property(env, single_result_dict, key, arr);
+		}
+
+		// Shot found on
+		{
+			napi_value arr;
+			napi_create_array(env, &arr);
+
+			auto iter = res.s_found_on;
+			for (size_t i = 0; i <= res.target_index; ++i, iter++) {
+				napi_value point;
+				napi_create_int64(env, *iter, &point);
+				napi_set_element(env, arr, i, point);
+			}
+
+			napi_value key;
+			napi_create_string_utf8(
+			env, "shotOn", NAPI_AUTO_LENGTH, &key);
+
+			napi_set_property(env, single_result_dict, key, arr);
+		}
+		
+		// Shot found on
+		{
+			napi_value arr;
+			napi_create_array(env, &arr);
+
+			auto iter = res.f_found_on;
+			for (size_t i = 0; i <= res.target_index; ++i, iter++) {
+				napi_value point;
+				napi_create_int64(env, *iter, &point);
+				napi_set_element(env, arr, i, point);
+			}
+
+			napi_value key;
+			napi_create_string_utf8(
+			env, "frameOn", NAPI_AUTO_LENGTH, &key);
+
+			napi_set_property(env, single_result_dict, key, arr);
+		}
+
+	} catch (const std::exception &e) {
+		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+	}
+
+	return Napi::Object(env, single_result_dict);
 }
 
 Napi::Value

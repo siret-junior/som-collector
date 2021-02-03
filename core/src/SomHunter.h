@@ -32,6 +32,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <filesystem>
 
 #include "AsyncSom.h"
 #include "DatasetFeatures.h"
@@ -43,6 +44,7 @@
 
 #define PREPARE_IMAGE_ID 0
 #define NOT_FOUND_YET 9999
+#define SAVE_DIR "user_progress/"
 
 class SomHunter
 {
@@ -139,10 +141,13 @@ public:
 		s_found_on.resize(targets.size(), NOT_FOUND_YET);
 		f_found_on.resize(targets.size(), NOT_FOUND_YET);
 
+		load_state();
+
 		targetId = targets[target_index];
 		targetFrame = frames.get_frame(targetId);
 		asyncSom.start_work(*features, scores);
 		debug("New target id = " << targetId);
+
 	}
 
 	inline const std::string & get_last_text_query() { return last_text_query; }
@@ -177,6 +182,9 @@ public:
 	/** Sumbits frame with given id to VBS server */
 	SubmitResult submit_to_server(ImageId frame_id);
 
+	/** Returns information about success rate */
+	SubmitResult get_level_info();
+
 	/** Resets current search context and starts new search */
 	DisplayType reset_search_session();
 
@@ -205,6 +213,10 @@ private:
 	 *	Gives SOM worker new work.
 	 */
 	void som_start();
+
+	void save_state();
+
+	void load_state();
 
 	FramePointerRange get_random_display();
 
@@ -252,6 +264,29 @@ public:
 	  , kws(cfg)
 	  , hunter_count(0)
 	{
+
+		if (!std::filesystem::is_directory(SAVE_DIR))
+			std::filesystem::create_directory(SAVE_DIR);
+
+		for (const auto & entry : std::filesystem::directory_iterator(SAVE_DIR)) {
+			debug("Scanning " << entry);
+			if (entry.is_regular_file()) {
+				// Load name
+				std::string p = entry.path().stem().string();
+
+				// Parse name and position
+				auto split = p.find("-");
+				std::string id = p.substr(0, split);
+				size_t pos = std::stol(p.substr(split + 1));
+
+				// Create hunter
+				id_to_hunter.emplace(
+				std::make_pair(std::string(id),
+								std::make_unique<SomHunter>(
+								id, cfg, &features, &kws, pos)));
+				++hunter_count;
+			}
+		}
 		debug("SomHuntersGuild created");
 	}
 

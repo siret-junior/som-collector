@@ -150,7 +150,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     }
 
 
-  }function showPreviousHistogram() {
+  } function showPreviousHistogram() {
     pageId = 0;
     // Make the request
     fetch("/get_previous_screen", {
@@ -184,7 +184,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           "e"
         );
       });
-      $('#modalHistogram').foundation('open');
+    $('#modalHistogram').foundation('open');
   }
 
   function showPreviousDisplay() {
@@ -221,7 +221,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           "e"
         );
       });
-      $('#modalDetail').foundation('open');
+    $('#modalDetail').foundation('open');
   }
 
   function forceShowSomDisplay() {
@@ -254,11 +254,10 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         endWorking();
       })
       .catch((e) => {
-        if ('SOM not yet ready.' !== e.message)
-        {
+        if ('SOM not yet ready.' !== e.message) {
           console.log(e);
           console.log(e.message);
-		  endWorking();
+          endWorking();
         } else {
           setTimeout(forceShowSomDisplay, 1000);
         }
@@ -291,7 +290,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
-		endWorking();
+        endWorking();
         showGlobalMessage(
           "Request failed!",
           JSON.stringify(e.message),
@@ -307,11 +306,10 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     $('#chartContent').append('<canvas id="histogram" width="400" height="200%"></canvas>');
 
     const ctx = document.getElementById('histogram').getContext('2d');
-    
-    histogram_labels = Array.from({length: 100}, (_, i) => i + 1);
+
+    histogram_labels = Array.from({ length: 100 }, (_, i) => i + 1);
     histogram_data = [];
-    for(var i = 0; i < screenData.histogram.length; i++)
-    {
+    for (var i = 0; i < screenData.histogram.length; i++) {
       histogram_data[i] = screenData.histogram[i].histogram;
     }
     const chart = new Chart(ctx, {
@@ -348,7 +346,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     const grid = document.getElementById("videoDetailFrameGrid");
     const targetGrid = document.getElementById("targetFrameGrid");
     const frames = screenData.frames;
-    
+
     $(grid).empty();
     $(targetGrid).empty();
 
@@ -363,44 +361,44 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         frames[i].id,
         frames[i].src,
         frames[i].vId);
-        
-        
-        let span0 = document.createElement("span");
-        {
-          span0.className = "frame-id";
-          span0.innerText = frames[i].vidId;
-        }
-        let p1 = document.createElement("p");
-        {
-          p1.innerText = screenData.distances[i].distance;
-          p1.className = "previous-screen-frame";
-          
-        }
-        let li = document.createElement("li");
-        {
-          li.className = `frame-in-grid small-6 medium-4 large-2 cell ${likedStr}`;
-          li.style.backgroundImage = `url('${frames[i].src}')`;
-          li.style["background-size"] = "100% 100%";
-          li.dataset.frameId = frames[i].id;
-        }
-        li.appendChild(span0);
-        li.appendChild(p1);
 
-        let frag = document.createDocumentFragment();
-        frag.appendChild(li);
 
-        
+      let span0 = document.createElement("span");
+      {
+        span0.className = "frame-id";
+        span0.innerText = frames[i].vidId;
+      }
+      let p1 = document.createElement("p");
+      {
+        p1.innerText = screenData.distances[i].distance;
+        p1.className = "previous-screen-frame";
+
+      }
+      let li = document.createElement("li");
+      {
+        li.className = `frame-in-grid small-6 medium-4 large-2 cell ${likedStr}`;
+        li.style.backgroundImage = `url('${frames[i].src}')`;
+        li.style["background-size"] = "100% 100%";
+        li.dataset.frameId = frames[i].id;
+      }
+      li.appendChild(span0);
+      li.appendChild(p1);
+
+      let frag = document.createDocumentFragment();
+      frag.appendChild(li);
+
+
       grid.appendChild(li);
 
-      }
-      
-      let target_li = document.createElement("li");
-      {
-        target_li.className = `frame-in-grid small-6 medium-4 large-2 cell`;
-        target_li.style.backgroundImage = `url('${screenData.targetPath.src}')`;
-        target_li.dataset.frameId = screenData.targetPath.id;
-      }
-      targetGrid.appendChild(target_li)
+    }
+
+    let target_li = document.createElement("li");
+    {
+      target_li.className = `frame-in-grid small-6 medium-4 large-2 cell`;
+      target_li.style.backgroundImage = `url('${screenData.targetPath.src}')`;
+      target_li.dataset.frameId = screenData.targetPath.id;
+    }
+    targetGrid.appendChild(target_li)
 
   }
 
@@ -429,7 +427,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
-		endWorking();
+        endWorking();
         showGlobalMessage(
           "Request failed!",
           JSON.stringify(e.message),
@@ -530,7 +528,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
-		endWorking();
+        endWorking();
         showGlobalMessage(
           "Request failed!",
           JSON.stringify(e.message),
@@ -553,63 +551,63 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     $('#panelNextExp').html(level * levelStep);
   }
 
-  function showSubmitWindow(data) {
+  function showSubmitWindow(data, show = true) {
     const frame = data.correctFrame;
     const shot = data.correctShot;
     const video = data.correctVideo;
     const correctTick = '<div style="color: green;">✓</div>'
     const wrongTick = '<div style="color: red;">✗</div>'
     var areStats = false;
-    
+
     subWindowTick++;
     $cont = $("#submitCont");
 
     // Result table
-    if(frame)
-    {
+    if (frame) {
       $("#divSubmitHeader").html("Tak to je paráda! Našel si přesně ten hledaný obrázek, pokračuj na další hledání.");
     }
-    else if(shot || video){
+    else if (shot || video) {
       $("#divSubmitHeader").html("Skvělá práce, zkus najít i přesný hledaný snímek, jsou za něj extra body!");
     }
-    else{
+    else {
       $("#divSubmitHeader").html("Tohle bohužel není hledaný snímek ani video, zkus to znovu :)");
     }
-	$("#divCorrectFrame").html(frame ? correctTick : wrongTick);
+    $("#divCorrectFrame").html(frame ? correctTick : wrongTick);
     $("#divCorrectShot").html(shot ? correctTick : wrongTick);
     $("#divCorrectVideo").html(video ? correctTick : wrongTick);
 
     // Update exps
-    experiences = data.points.reduce((a,b) => a + b);
+    experiences = data.points.reduce((a, b) => a + b);
 
     // Update stats
     $stats = $("#divSubmitStats");
 
     // Update level
     if (experiences >= (level * levelStep)) {
-	  level = Math.floor(experiences / levelStep) + 1;
+      level = Math.floor(experiences / levelStep) + 1;
       areStats = true;
-      
-      const videoF = (100 * data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a,b)=> a + b) / (data.videoOn.length - 2)).toFixed(2);
 
-      $stats.css('display', 'block');
+      const videoF = (100 * data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b) / (data.videoOn.length - 2)).toFixed(2);
+
+      if (show)
+        $stats.css('display', 'block');
       $('#divVideosFound').html(videoF);
-      $('#divAvgDisp').html((data.videoOn.map(e => e < 100 ? e : 0).reduce((a,b)=> a + b) / 
-                            data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a,b)=> a + b)).toFixed(2));
+      $('#divAvgDisp').html((data.videoOn.map(e => e < 100 ? e : 0).reduce((a, b) => a + b) /
+        data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b)).toFixed(2));
 
 
-      if (videoF > 80) {
+      if (videoF > 75) {
         $('#divSubmitComment').html('⭐WOW!⭐ Koukám, že tu máme hledače z první ligy!');
-      } else if (videoF > 60) {
+      } else if (videoF > 55) {
         $('#divSubmitComment').html('Vedeš si výborně! Ale je tu ještě prostor pro zlepšení. 🚀');
-      } else if (videoF > 40) {
+      } else if (videoF > 35) {
         $('#divSubmitComment').html('To není vůbec špatné. Ale vsadím se, že to zvládneš lépe.');
-      } else if (videoF > 20) {
+      } else if (videoF > 15) {
         $('#divSubmitComment').html('No, není to žádná sláva, ale ty se určitě zlepšíš!');
       } else {
         $('#divSubmitComment').html('Chce to ještě trochu cviku. Dobrá zpráva je, že můžeš už být jen lepší. 🙂');
       }
-      
+
     } else {
       $stats.css('display', 'none');
     }
@@ -627,7 +625,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     }
 
     $primary.html(ihtml);
-    $cont.css('display', 'block');
+    if (show)
+      $cont.css('display', 'block');
 
     // Progress bar
     $bar = $("#submit-bar");
@@ -934,6 +933,41 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       });
   }
 
+  function updateLevelInfo() {
+    // Make the request
+    fetch("/get_level_info", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        if (!res.ok) { throw Error(res.statusText); }
+        return res.json()
+      })
+      .then((data) => {
+        // Handle error
+        if (data.error) {
+          throw Error(data.error.message);
+        }
+
+        console.log(data)
+
+        // Updates level
+        showSubmitWindow(data, false);
+      })
+      .catch((e) => {
+        console.log("Error: " + JSON.stringify(e.message));
+        endWorking();
+        showGlobalMessage(
+          "Request failed!",
+          JSON.stringify(e.message),
+          5000,
+          "e"
+        );
+      });
+  }
+
   let isDebug = false;
 
   function toggleDebug() {
@@ -995,6 +1029,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     startWorking()
     putDocumentToState(vd);
     updateTargetImage();
+    updateLevelInfo();
     updateRescoreButton();
     updateLevelView();
 
