@@ -642,17 +642,24 @@ SomHunterNapi::rescore(const Napi::CallbackInfo &info)
 	const std::string usr = info[0].As<Napi::String>().Utf8Value();
 	std::string query{ info[1].As<Napi::String>().Utf8Value() };
 
+	DisplayType disp = DisplayType::DNull;
 	try {
 		debug("API: CALL \n\t rescore\n\t\t query =  " << query
 		                                               << std::endl);
 
-		somhunter->get(usr)->rescore(query);
+		disp = somhunter->get(usr)->rescore(query);
 
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
 
-	return Napi::Object{};
+	napi_value result;
+	if (disp == DisplayType::DSom)
+		napi_create_string_utf8(env, "som", 3, &result);
+	else
+		napi_create_string_utf8(env, "topn", 4, &result);
+
+	return Napi::Object(env, result);
 }
 
 Napi::Value

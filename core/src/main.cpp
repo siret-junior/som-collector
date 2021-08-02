@@ -36,6 +36,22 @@ print_display(const FramePointerRange &d)
 int
 main()
 {
+	const std::string cfg_fpth{ "../../../config.json" };
+	auto config = Config::parse_json_config(cfg_fpth);
+	DatasetFrames frames(config);
+	DatasetFeatures feats(frames, config);
+	KeywordRanker kwRanker(config);
+	ScoreModel scores(frames);
+	//SomHunter core{ std::string("test"),  config, &feats, &kwRanker, 1 };
+
+
+	std::cout << "Metadata loaded" << std::endl;
+	//auto kw = kwRanker.find("chapel");
+	//std::cout << kw.front().first << "\t" << kw.front().second << std::endl;
+
+	kwRanker.rank_sentence_query(std::string("black and white street cubes"), scores, feats, frames, config);
+	std::cout << scores[783244] << std::endl;
+
 #if 0
 	debug("this is debug log");
 	info("this is info log");

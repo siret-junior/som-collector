@@ -129,7 +129,9 @@ public:
 			throw std::runtime_error("missing image list");
 		}
 		{ 
+			#if 0
 			targets.push_back(PREPARE_IMAGE_ID);
+			#endif
 			for (std::string s; getline(in, s);) {
 				targets.push_back(std::stoi(s));
 			}
@@ -175,7 +177,7 @@ public:
 	 * Applies all algorithms for score
 	 * computation and updates context.
 	 */
-	void rescore(const std::string &text_query);
+	DisplayType rescore(const std::string &text_query);
 
 	bool som_ready() const;
 

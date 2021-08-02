@@ -136,6 +136,9 @@ FeedbackLogger::log_feedback(const std::string &type,
 
 	if (type == FeedbackLogger::TEXT || type == FeedbackLogger::FEEDBACK) {
 		target_iter++;
+	}
+
+	if (type == FeedbackLogger::FEEDBACK) {
 		curr_iter++;
 	}
 }

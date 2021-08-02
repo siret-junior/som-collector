@@ -1,4 +1,4 @@
-﻿<!-- 
+<!-- 
 This file is part of SOMHunter.
 
 Copyright (C) 2020 František Mejzlík <frankmejzlik@gmail.com>
@@ -137,7 +137,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       elem.classList.remove("som-grid");
       elem.innerHTML = "";
       forceSOMDone = false;
-      rescore(forceShowSomDisplay);
+      rescore(/*forceShowSomDisplay*/);
     }
   }
 
@@ -146,7 +146,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       const elem = document.getElementById("frameGrid");
       elem.classList.remove("som-grid");
       elem.innerHTML = "";
-      rescore(showTopDisplay);
+      rescore(/*showTopDisplay*/);
     }
 
 
@@ -471,7 +471,10 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         //showTopDisplay();
 
         //showGlobalMessage(`Rescored.`, "", 2000,"s"); 
-        callback();
+        vd.somhunter = data.viewData.somhunter;
+        updateRescoreButton();
+        if (typeof callback === 'function')
+          callback();
       })
       .catch((e) => {
         console.log("Error: " + JSON.stringify(e.message));
@@ -489,6 +492,9 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       ignoreNextLike = false;
       return;
     }
+
+    // Stopping reformulation, starting feedbacking
+    document.getElementById("textQueryInput0").disabled = true;
 
     // Request input data
     const reqData = {
@@ -755,6 +761,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           updateRescoreButton();
           updateTargetImage();
           found = false;
+          document.getElementById("textQueryInput0").disabled = false;
         })
         .catch((e) => {
           console.log("Error: " + JSON.stringify(e.message));

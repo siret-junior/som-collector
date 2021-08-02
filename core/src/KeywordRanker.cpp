@@ -230,10 +230,13 @@ KeywordRanker::find(const std::string &search, size_t num_limit) const
 			if (f == std::basic_string<char>::npos)
 				continue;
 
-			if (f == 0u)
+			if (f == 0u) {
+				info(s << " " << kw.kw_ID);
 				r.emplace_back(kw.kw_ID, j);
-			else
+			} else {
+				//info(s << " " << kw.kw_ID);
 				r2.emplace_back(kw.kw_ID, j);
+			}
 		}
 
 	std::sort(
@@ -312,8 +315,10 @@ KeywordRanker::rank_sentence_query(const std::string &sentence_query_raw,
 
 		auto v = find(kw_word);
 
-		if (!v.empty())
+		if (!v.empty()) {
+			info(v.front().first);
 			pos_one_query.emplace_back(v.front().first);
+		}
 	}
 
 	// Deploy this last query

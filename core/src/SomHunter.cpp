@@ -109,7 +109,7 @@ SomHunter::autocomplete_keywords(const std::string &prefix, size_t count) const
 	return res;
 }
 
-void
+DisplayType
 SomHunter::rescore(const std::string &text_query)
 {
 	std::lock_guard<std::mutex> guard(mutex);
@@ -179,6 +179,8 @@ SomHunter::rescore(const std::string &text_query)
 	                                 last_text_query,
 	                                 config.topn_frames_per_video,
 	                                 config.topn_frames_per_shot);*/
+
+	return get_available_display();
 }
 
 bool
@@ -248,6 +250,7 @@ SomHunter::get_level_info() {
 		             f_found_on.data() };
 }
 
+#ifdef LEGACY
 DisplayType
 SomHunter::get_available_display()
 {
@@ -259,6 +262,20 @@ SomHunter::get_available_display()
 		return DisplayType::DSom;
 	}
 }
+#else
+DisplayType
+SomHunter::get_available_display()
+{
+	// Create sequence [text,...,text,SOM,TOP,SOM,TOP,...]
+	if ((flogger.curr_iter % 2) == 1) {
+		debug("New avail display is TopN");
+		return DisplayType::DTopN;
+	} else {
+		debug("New avail display is SOM");
+		return DisplayType::DSom;
+	}
+}
+#endif
 
 DisplayType
 SomHunter::reset_search_session()
@@ -522,6 +539,7 @@ SomHunter::get_previous_display()
 FramePointerRange
 SomHunter::get_topn_display(PageId page)
 {
+	debug("Showing topn display");
 	// Another display or first page -> load
 	if (current_display_type != DisplayType::DTopN || page == 0) {
 		// Get ids
@@ -571,6 +589,8 @@ SomHunter::get_som_display()
 	if (!asyncSom.map_ready()) {
 		return FramePointerRange();
 	}
+	
+	debug("Showing som display");
 
 	std::vector<ImageId> ids;
 	ids.resize(SOM_DISPLAY_GRID_WIDTH * SOM_DISPLAY_GRID_HEIGHT);
