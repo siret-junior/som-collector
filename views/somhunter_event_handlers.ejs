@@ -136,7 +136,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
   }
 
   function rescoreAndShowNextDisplay() {
-    if(likesCount() != 3 && vd.somhunter.feedbacks != 0)
+    
+    if(likesCount() != 3 && document.getElementById("textQueryInput0").disabled)
     {
       showGlobalMessage(
         "Požadavek neúspěšný: Vyberte prosím právě tři lajky",
