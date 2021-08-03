@@ -132,7 +132,8 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
   var forceSOMDone = true;
 
   function likesCount() {
-    return document.getElementsByClassName("liked").length;
+    //return document.getElementsByClassName("liked").length;
+    return 3;
   }
 
   function rescoreAndShowNextDisplay() {
@@ -144,6 +145,10 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         3000,
       );
       return;
+    }
+    if (vd.somhunter.reformulations >= 5) {
+      alert("Již jste změnili textový dotaz " + vd.somhunter.reformulations + " krát. " + 
+            "Nechcete začít hledat pomocí \"lajků\"?");
     }
     if (startWorking()) {
       const elem = document.getElementById("frameGrid");
@@ -549,7 +554,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
   }
 
   const hideSubmitWindow = 3000;
-  const levelStep = 9;
+  const levelStep = 20;
   var subWindowTick = 0;
   var level = 1;
   var experiences = 0;
@@ -576,15 +581,15 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     if (frame) {
       $("#divSubmitHeader").html("Tak to je paráda! Našel si přesně ten hledaný obrázek, pokračuj na další hledání.");
     }
-    else if (shot || video) {
+    /*else if (shot || video) {
       $("#divSubmitHeader").html("Skvělá práce, zkus najít i přesný hledaný snímek, jsou za něj extra body!");
-    }
+    }*/
     else {
-      $("#divSubmitHeader").html("Tohle bohužel není hledaný snímek ani video, zkus to znovu :)");
+      $("#divSubmitHeader").html("Tohle bohužel není hledaný obrázek, zkus to znovu :)");
     }
     $("#divCorrectFrame").html(frame ? correctTick : wrongTick);
-    $("#divCorrectShot").html(shot ? correctTick : wrongTick);
-    $("#divCorrectVideo").html(video ? correctTick : wrongTick);
+    //$("#divCorrectShot").html(shot ? correctTick : wrongTick);
+    //$("#divCorrectVideo").html(video ? correctTick : wrongTick);
 
     // Update exps
     experiences = data.points.reduce((a, b) => a + b);
@@ -597,22 +602,22 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       level = Math.floor(experiences / levelStep) + 1;
       areStats = true;
 
-      const videoF = (100 * data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b) / (data.videoOn.length - 2)).toFixed(2);
+      const frameF = (100 * data.frameOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b) / (data.frameOn.length)).toFixed(2);
 
       if (show)
         $stats.css('display', 'block');
-      $('#divVideosFound').html(videoF);
-      $('#divAvgDisp').html((data.videoOn.map(e => e < 100 ? e : 0).reduce((a, b) => a + b) /
-        data.videoOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b)).toFixed(2));
+      $('#divVideosFound').html(frameF);
+      $('#divAvgDisp').html((data.frameOn.map(e => e < 100 ? e : 0).reduce((a, b) => a + b) /
+        data.frameOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b)).toFixed(2));
 
 
-      if (videoF > 75) {
+      if (videoF > 70) {
         $('#divSubmitComment').html('⭐WOW!⭐ Koukám, že tu máme hledače z první ligy!');
-      } else if (videoF > 55) {
+      } else if (videoF > 50) {
         $('#divSubmitComment').html('Vedeš si výborně! Ale je tu ještě prostor pro zlepšení. 🚀');
-      } else if (videoF > 35) {
+      } else if (videoF > 30) {
         $('#divSubmitComment').html('To není vůbec špatné. Ale vsadím se, že to zvládneš lépe.');
-      } else if (videoF > 15) {
+      } else if (videoF > 10) {
         $('#divSubmitComment').html('No, není to žádná sláva, ale ty se určitě zlepšíš!');
       } else {
         $('#divSubmitComment').html('Chce to ještě trochu cviku. Dobrá zpráva je, že můžeš už být jen lepší. 🙂');
@@ -629,7 +634,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     var ihtml = "";
 
     if (frame) {
-      ihtml += '<br/><div class="small-6 cell"><a class="button block-btn new-seach-btn" onclick="closeSubmitWindow();resetSearchSession()">New search</a></div>'
+      ihtml += '<br/><div class="small-6 cell"><a class="button block-btn new-seach-btn" onclick="closeSubmitWindow();resetSearchSession()">Nové hledání</a></div>'
     } else if (!areStats) {
       ihtml += '<div id="submit-progress">  <div id="submit-bar"></div> </div>'
     }

@@ -216,18 +216,18 @@ SomHunter::submit_to_server(ImageId frame_id)
 
 	// Apply points and found on counters
 	if (guess.frame_ID == targetFrame.frame_ID) {
-		points[target_index] = 3;
+		points[target_index] = 5;
 		f_found_on[target_index] = std::min(f_found_on[target_index], flogger.target_iter);
 	} 
 
 	if (guess.video_ID == targetFrame.video_ID &&
 	           guess.shot_ID == targetFrame.shot_ID) {
-		points[target_index] = std::max(size_t(2), points[target_index]);
+		//points[target_index] = std::max(size_t(2), points[target_index]);
 		s_found_on[target_index] = std::min(s_found_on[target_index], flogger.target_iter);
 	} 
 
 	if (guess.video_ID == targetFrame.video_ID) {
-		points[target_index] = std::max(size_t(1), points[target_index]);
+		//points[target_index] = std::max(size_t(1), points[target_index]);
 		v_found_on[target_index] = std::min(v_found_on[target_index], flogger.target_iter);
 	}
 
