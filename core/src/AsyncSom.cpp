@@ -32,8 +32,8 @@
 void
 AsyncSom::async_som_worker(AsyncSom *parent, const Config &cfg)
 {
-	std::random_device rd;
-	std::mt19937 rng(rd());
+	//std::random_device rd;
+	std::mt19937 rng(42);
 
 	info("SOM worker starting");
 

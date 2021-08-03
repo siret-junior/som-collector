@@ -131,26 +131,16 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
   var forceSOMDone = true;
 
-  function rescoreAndShowSom() {
+  function rescoreAndShowNextDisplay() {
     if (startWorking()) {
       const elem = document.getElementById("frameGrid");
       elem.classList.remove("som-grid");
       elem.innerHTML = "";
-      forceSOMDone = false;
-      rescore(/*forceShowSomDisplay*/);
+      rescore();
     }
   }
-
-  function rescoreAndShowTop() {
-    if (startWorking()) {
-      const elem = document.getElementById("frameGrid");
-      elem.classList.remove("som-grid");
-      elem.innerHTML = "";
-      rescore(/*showTopDisplay*/);
-    }
-
-
-  } function showPreviousHistogram() {
+  
+  function showPreviousHistogram() {
     pageId = 0;
     // Make the request
     fetch("/get_previous_screen", {
@@ -472,6 +462,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
         //showGlobalMessage(`Rescored.`, "", 2000,"s"); 
         vd.somhunter = data.viewData.somhunter;
+        updateLimitations();
         updateRescoreButton();
         if (typeof callback === 'function')
           callback();
@@ -762,6 +753,9 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
           updateTargetImage();
           found = false;
           document.getElementById("textQueryInput0").disabled = false;
+          document.getElementById("resetButton").style.display = 'none';
+          document.getElementById("rescore-btn").style.display = 'block';
+          document.getElementById("rescore-holder").style.display = 'none';
         })
         .catch((e) => {
           console.log("Error: " + JSON.stringify(e.message));
@@ -778,32 +772,24 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
   function updateRescoreButton() {
     // Now request new display and disable others
     if (vd.somhunter.display_available == "topn") {
-      document.getElementById("rescore-som-btn").style.display = "none";
-      document.getElementById("rescore-topn-btn").style.display = "block";
       showTopDisplay();
     } else {
-      document.getElementById("rescore-som-btn").style.display = "block";
-      document.getElementById("rescore-topn-btn").style.display = "none";
       forceSOMDone = false;
       forceShowSomDisplay();
     }
   }
 
-  function setupPanelButtons(viewData) {
-    const elBtnSom = document.getElementById("btnSom");
-    const elBtnTopn = document.getElementById("btnTopn");
-
-    elBtnSom.classList.remove("active");
-    elBtnTopn.classList.remove("active");
-
-    switch (viewData.somhunter.screen.type) {
-      case "som":
-        elBtnSom.classList.add("active");
-        break;
-
-      case "topn":
-        elBtnTopn.classList.add("active");
-        break;
+  function updateLimitations() {
+    // Now request new display and disable others
+    if (vd.somhunter.feedbacks > 0) {
+      document.getElementById("textQueryInput0").disabled = true;
+    }
+    if (vd.somhunter.feedbacks >= 9) {
+      document.getElementById("resetButton").style.display = 'block';
+      document.getElementById("rescore-btn").style.display = 'none';
+      document.getElementById("rescore-holder").style.display = 'block';
+      // TODO maybe show a pop up window that the search of this
+      // target ends here and they should go to the next one
     }
   }
 
@@ -1014,10 +1000,6 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     setupImageGrid(viewData);
 
     // -----------------------------
-    // Change buttons
-    //setupPanelButtons(viewData);
-
-    // -----------------------------
     // Setup query inputs
     setupQueryInputs(viewData);
 
@@ -1039,6 +1021,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     updateLevelInfo();
     updateRescoreButton();
     updateLevelView();
+    updateLimitations();
 
     $(window).bind('mousewheel DOMMouseScroll', function (event) {
       if (event.shiftKey) {

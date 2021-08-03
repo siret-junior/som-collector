@@ -142,4 +142,10 @@ struct SubmitResult {
 	size_t* f_found_on;
 };
 
+struct SearchState {
+	DisplayType nextDisplay;
+	size_t reformulations;
+	size_t feedbacks;
+};
+
 #endif // COMMON_H_

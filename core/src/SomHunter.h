@@ -97,6 +97,9 @@ class SomHunter
 	std::vector<size_t> f_found_on;
 	size_t target_index;
 
+	size_t reformulations;
+	size_t feedbacks;
+
 	std::mutex mutex;
 
 public:
@@ -122,6 +125,8 @@ public:
 	  , targetFrame(frames.get_frame(0))
 	  , user(usr)
 	  , user_order(user_order)
+	  , reformulations(0)
+	  , feedbacks(0)
 	{
 		std::ifstream in(config.target_list_file);
 		if (!in.good()) {
@@ -177,7 +182,7 @@ public:
 	 * Applies all algorithms for score
 	 * computation and updates context.
 	 */
-	DisplayType rescore(const std::string &text_query);
+	SearchState rescore(const std::string &text_query);
 
 	bool som_ready() const;
 

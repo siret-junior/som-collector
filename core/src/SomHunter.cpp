@@ -109,7 +109,7 @@ SomHunter::autocomplete_keywords(const std::string &prefix, size_t count) const
 	return res;
 }
 
-DisplayType
+SearchState
 SomHunter::rescore(const std::string &text_query)
 {
 	std::lock_guard<std::mutex> guard(mutex);
@@ -134,7 +134,7 @@ SomHunter::rescore(const std::string &text_query)
 	if (current_display_type == DisplayType::DSom)
 		last_displ = FeedbackLogger::DISPLAY_SOM;
 	// Log relevance feedback and text query
-	if (former_text_query != text_query)
+	if (former_text_query != text_query) {
 		flogger.log_feedback(FeedbackLogger::TEXT,
 		                     last_displ,
 		                     text_query,
@@ -145,8 +145,10 @@ SomHunter::rescore(const std::string &text_query)
 		                     scores,
 		                     frames,
 		                     IMAGE_ID_ERR_VAL);
+		++reformulations;
+	}
 
-	if (!likes.empty())
+	if (!likes.empty()) {
 		flogger.log_feedback(FeedbackLogger::FEEDBACK,
 		                     last_displ,
 		                     text_query,
@@ -157,6 +159,8 @@ SomHunter::rescore(const std::string &text_query)
 		                     scores,
 		                     frames,
 		                     IMAGE_ID_ERR_VAL);
+		++feedbacks;
+	}
 
 	// Update search context
 	shown_images.clear();
@@ -180,7 +184,7 @@ SomHunter::rescore(const std::string &text_query)
 	                                 config.topn_frames_per_video,
 	                                 config.topn_frames_per_shot);*/
 
-	return get_available_display();
+	return SearchState{get_available_display(), reformulations, feedbacks};
 }
 
 bool
@@ -302,6 +306,9 @@ SomHunter::reset_search_session()
 
 	shown_images.clear();
 
+	reformulations = 0;
+	feedbacks = 0;
+
 	// submitter.log_reset_search();
 	som_start();
 
@@ -327,6 +334,8 @@ SomHunter::save_state() {
 	const auto sav_path = SAVE_DIR + user + "-" + std::to_string(user_order) + ".sav";
 	std::ofstream ostrm(sav_path, std::ios::binary);
 
+	ostrm.write(reinterpret_cast<char*>(&reformulations), sizeof reformulations); 
+	ostrm.write(reinterpret_cast<char*>(&feedbacks), sizeof feedbacks); 
 	ostrm.write(reinterpret_cast<char*>(&target_index), sizeof target_index); 
 	ostrm.write(reinterpret_cast<char*>(points.data()), points.size() * sizeof(size_t)); 
 	ostrm.write(reinterpret_cast<char*>(v_found_on.data()), v_found_on.size() * sizeof(size_t)); 
@@ -343,6 +352,8 @@ SomHunter::load_state() {
 	if (std::filesystem::exists(sav_path)) {
 		std::ifstream istrm(sav_path, std::ios::binary);
 
+		istrm.read(reinterpret_cast<char*>(&reformulations), sizeof reformulations);
+		istrm.read(reinterpret_cast<char*>(&feedbacks), sizeof feedbacks);
 		istrm.read(reinterpret_cast<char*>(&target_index), sizeof target_index);
 		istrm.read(reinterpret_cast<char*>(points.data()), points.size() * sizeof(size_t));
 		istrm.read(reinterpret_cast<char*>(v_found_on.data()), v_found_on.size() * sizeof(size_t)); 

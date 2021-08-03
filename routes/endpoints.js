@@ -130,7 +130,7 @@ exports.rescore = function (req, res) {
   // Call the core
   global.core.addLikes(req.session.user, likes);
   global.core.removeLikes(req.session.user, unlikes);
-  const avail_disp = global.core.rescore(req.session.user, textQuery);
+  const state = global.core.rescore(req.session.user, textQuery);
   // -------------------------------
 
   // Reset likes
@@ -139,8 +139,10 @@ exports.rescore = function (req, res) {
 
   let viewData = {};
   viewData.somhunter = SessionState.getSomhunterUiState(sess.state);
-  viewData.somhunter.display_available = avail_disp;
-  
+  viewData.somhunter.display_available = state.nextDisplay;
+  viewData.somhunter.reformulations = state.reformulations;
+  viewData.somhunter.feedbacks = state.feedbacks;
+
   res.status(200).jsonp({ viewData: viewData });
 };
 

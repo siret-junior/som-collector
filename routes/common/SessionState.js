@@ -76,6 +76,8 @@ exports.resetSearchSession = function (state) {
     });
   state.screen = null;
   state.display_available = "som";
+  state.reformulations = 0;
+  state.feedbacks = 0;
 };
 
 exports.getLikes = function (state) {

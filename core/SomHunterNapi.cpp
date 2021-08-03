@@ -642,22 +642,55 @@ SomHunterNapi::rescore(const Napi::CallbackInfo &info)
 	const std::string usr = info[0].As<Napi::String>().Utf8Value();
 	std::string query{ info[1].As<Napi::String>().Utf8Value() };
 
-	DisplayType disp = DisplayType::DNull;
+	SearchState state;
 	try {
 		debug("API: CALL \n\t rescore\n\t\t query =  " << query
 		                                               << std::endl);
 
-		disp = somhunter->get(usr)->rescore(query);
+		state = somhunter->get(usr)->rescore(query);
 
 	} catch (const std::exception &e) {
 		Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
 	}
 
 	napi_value result;
-	if (disp == DisplayType::DSom)
-		napi_create_string_utf8(env, "som", 3, &result);
-	else
-		napi_create_string_utf8(env, "topn", 4, &result);
+	napi_create_object(env, &result);
+
+	// Set "nextDisplay"
+	{
+		napi_value key;
+		napi_create_string_utf8(env, "nextDisplay", NAPI_AUTO_LENGTH, &key);
+
+		napi_value value;
+		if (state.nextDisplay == DisplayType::DSom)
+			napi_create_string_utf8(env, "som", 3, &value);
+		else
+			napi_create_string_utf8(env, "topn", 4, &value);
+
+		napi_set_property(env, result, key, value);
+	}
+
+	// Set "reformulations"
+	{
+		napi_value key;
+		napi_create_string_utf8(env, "reformulations", NAPI_AUTO_LENGTH, &key);
+
+		napi_value value;
+		napi_create_uint32(env, uint32_t(state.reformulations), &value);
+
+		napi_set_property(env, result, key, value);
+	}
+
+	// Set "feedbacks"
+	{
+		napi_value key;
+		napi_create_string_utf8(env, "feedbacks", NAPI_AUTO_LENGTH, &key);
+
+		napi_value value;
+		napi_create_uint32(env, uint32_t(state.feedbacks), &value);
+
+		napi_set_property(env, result, key, value);
+	}
 
 	return Napi::Object(env, result);
 }
