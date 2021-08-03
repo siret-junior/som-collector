@@ -130,6 +130,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
   }
 
   var forceSOMDone = true;
+  var previousTextQuery = "";
 
   function likesCount() {
     return document.getElementsByClassName("liked").length;
@@ -147,15 +148,33 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       return;
     }
 
-    if(likesCount() != 3 && document.getElementById("textQueryInput0").disabled)
+    if(previousTextQuery == document.getElementById("textQueryInput0").value)
     {
-      showGlobalMessage(
-        "Požadavek neúspěšný: Vyberte prosím právě tři lajky",
-        "",
-        3000,
-      );
-      return;
+      if(likesCount() != 3 && document.getElementById("textQueryInput0").disabled)
+      {
+        showGlobalMessage(
+          "Požadavek neúspěšný: Vyberte prosím právě tři lajky",
+          "",
+          3000,
+        );
+        return;
+      }
     }
+    else
+    {
+      previousTextQuery = document.getElementById("textQueryInput0").value;
+      if(likesCount() != 0)
+      {
+        showGlobalMessage(
+          "Požadavek neúspěšný: Zformulujte dotaz bez zadávání lajků",
+          "",
+          3000,
+        );
+        document.getElementById("textQueryInput0").disabled = false;
+        return;
+      }
+    }
+
     if (vd.somhunter.reformulations >= 5) {
       alert("Již jste změnili textový dotaz " + vd.somhunter.reformulations + " krát. " + 
             "Nechcete začít hledat pomocí \"lajků\"?");
