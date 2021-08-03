@@ -131,7 +131,20 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
 
   var forceSOMDone = true;
 
+  function likesCount() {
+    return document.getElementsByClassName("liked").length;
+  }
+
   function rescoreAndShowNextDisplay() {
+    if(likesCount() != 3)
+    {
+      showGlobalMessage(
+        "Požadavek neúspěšný: Vyberte prosím právě tři lajky",
+        "",
+        3000,
+      );
+      return;
+    }
     if (startWorking()) {
       const elem = document.getElementById("frameGrid");
       elem.classList.remove("som-grid");
