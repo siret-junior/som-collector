@@ -33,6 +33,9 @@ exports.Construct = function () {
       frames: [],
     },
     screen: null,
+    display_available: "som",
+    reformulations: 0,
+    feedbacks: 0,
   };
 };
 
