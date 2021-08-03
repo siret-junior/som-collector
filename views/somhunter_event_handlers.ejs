@@ -130,7 +130,6 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
   }
 
   var forceSOMDone = true;
-  var previousTextQuery = "";
 
   function likesCount() {
     return document.getElementsByClassName("liked").length;
@@ -140,35 +139,37 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     if(document.getElementById("textQueryInput0").value == "")
     {
       showGlobalMessage(
-        "Požadavek neúspěšný: Zadejte prosím textový dotaz",
+        "Zadejte prosím textový dotaz.",
         "",
         3000,
+        "e"
       );
       document.getElementById("textQueryInput0").disabled = false;
       return;
     }
 
-    if(previousTextQuery == document.getElementById("textQueryInput0").value)
+    if(vd.somhunter.textQueries.q0.value == document.getElementById("textQueryInput0").value)
     {
       if(likesCount() != 3 && document.getElementById("textQueryInput0").disabled)
       {
         showGlobalMessage(
-          "Požadavek neúspěšný: Vyberte prosím právě tři lajky",
+          "Vyberte prosím právě tři lajky.",
           "",
           3000,
+          "e"
         );
         return;
       }
     }
     else
     {
-      previousTextQuery = document.getElementById("textQueryInput0").value;
       if(likesCount() != 0)
       {
         showGlobalMessage(
-          "Požadavek neúspěšný: Zformulujte dotaz bez zadávání lajků",
+          "Zformulujte dotaz bez zadávání lajků.",
           "",
           3000,
+          "e"
         );
         document.getElementById("textQueryInput0").disabled = false;
         return;
