@@ -589,6 +589,7 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
   var level = 1;
   var experiences = 0;
   var found = false;
+  var frameF = 0;
 
   function updateLevelView() {
     $('#panelExp').html(experiences);
@@ -627,18 +628,18 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     // Update stats
     $stats = $("#divSubmitStats");
 
+    frameF = (100 * data.frameOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b) / (data.frameOn.length - 1)).toFixed(2);
+
     // Update level
     if (experiences >= (level * levelStep)) {
       level = Math.floor(experiences / levelStep) + 1;
       areStats = true;
 
-      const frameF = (100 * data.frameOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b) / (data.frameOn.length)).toFixed(2);
-
       if (show)
         $stats.css('display', 'block');
       $('#divVideosFound').html(frameF);
       $('#divAvgDisp').html((data.frameOn.map(e => e < 100 ? e : 0).reduce((a, b) => a + b) /
-        data.frameOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b)).toFixed(2));
+        (data.frameOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b) - 1) ).toFixed(2));
 
 
       if (videoF > 70) {
@@ -961,6 +962,11 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
       .then((data) => {
 
         document.getElementById("target_img").src = data;
+        if (data.endsWith("nothing.jpg")) {
+          updateLevelInfo();
+          document.getElementById("totalSuccess").innerHTML = frameF;
+          document.getElementById('modalEnd').style.display = 'block';
+        }
 
       })
       .catch((e) => {
