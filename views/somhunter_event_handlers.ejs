@@ -642,13 +642,13 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
         (data.frameOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b) - 1) ).toFixed(2));
 
 
-      if (videoF > 70) {
+      if (frameF > 70) {
         $('#divSubmitComment').html('⭐WOW!⭐ Koukám, že tu máme hledače z první ligy!');
-      } else if (videoF > 50) {
+      } else if (frameF > 50) {
         $('#divSubmitComment').html('Vedeš si výborně! Ale je tu ještě prostor pro zlepšení. 🚀');
-      } else if (videoF > 30) {
+      } else if (frameF > 30) {
         $('#divSubmitComment').html('To není vůbec špatné. Ale vsadím se, že to zvládneš lépe.');
-      } else if (videoF > 10) {
+      } else if (frameF > 10) {
         $('#divSubmitComment').html('No, není to žádná sláva, ale ty se určitě zlepšíš!');
       } else {
         $('#divSubmitComment').html('Chce to ještě trochu cviku. Dobrá zpráva je, že můžeš už být jen lepší. 🙂');
