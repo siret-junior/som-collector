@@ -628,7 +628,10 @@ SOMHunter. If not, see <https://www.gnu.org/licenses/>.
     // Update stats
     $stats = $("#divSubmitStats");
 
-    frameF = (100 * data.frameOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b) / (data.frameOn.length - 1)).toFixed(2);
+    if (document.getElementById("target_img").src.endsWith("nothing.jpg")) 
+      frameF = (100 * data.frameOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b) / (data.frameOn.length - 1)).toFixed(2);
+    else
+      frameF = (100 * data.frameOn.map(e => e < 100 ? 1 : 0).reduce((a, b) => a + b) / data.frameOn.length).toFixed(2);
 
     // Update level
     if (experiences >= (level * levelStep)) {
